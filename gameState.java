@@ -159,7 +159,7 @@ public class gameState {
     	//if before flop 'lastToRaise will initially be set to player after bigBlind
     	//for 2 players this will be the dealer
     	lastToRaise = dealer;
-    	while(!firstItem && activePlayer != lastToRaise){
+    	while(!firstItem || activePlayer != lastToRaise){
     		//update firstItem flag
     		firstItem = true;
     		//Get action from player or Bot class
