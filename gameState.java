@@ -1,10 +1,13 @@
+import java.util.Scanner;
 
 public class gameState {
+	Scanner input = new Scanner(System.in);
+	
 	int pot;							//current chip value in pot
 	int smallBlind; 					//current small blind
 	int bigBlind; 						//big blind value
 	int hands;							//count of hands played
-	int minRaise;						//identifies min raise amount
+	Integer minRaise;					//identifies min raise amount
 	int chipsToCall;					//identifies the total amount in chips a player needs in pot to call, this amount is cumulative
 	Cards[] boardCards;					//5 cards holding for board
 	boolean flopFlag;					//flags whether flop is visible
@@ -16,6 +19,8 @@ public class gameState {
 	Player dealer;						//identifies dealer for current hand
 	int playersInHand;					//count of players in current hand
 	boolean bot1Revealed;				//flags whether bot cards revealed
+	Deck deck = new Deck();				//deck of cards
+	
 	
 	gameState(){
 		boardCards = new Cards[5];
@@ -26,12 +31,13 @@ public class gameState {
 		turnFlag = false;
 		riverFlag = false;
 		bot1Revealed = false;
+		dealer = bot1;
 	}
 
-	public void createHand(Player d, Deck deck){
-		this.dealer = d;
+	public void createHand(){
 		Cards[] holeCards = new Cards[2];
-	
+		
+		deck.shuffle();
 		playersInHand = 1;
 		//make sure dealer status is set to inHand
 		dealer.setInHand(true);
@@ -103,8 +109,8 @@ public class gameState {
 		hands++;
 	}
 
-    public void fold(Player p){
-    	p.setInHand(false);
+    public void fold(){
+    	activePlayer.setInHand(false);
     	playersInHand--;
     }
     public boolean raise(int raiseAmt){//returns true if successful
@@ -148,9 +154,58 @@ public class gameState {
     		System.out.println(activePlayer.getPlayerName() + " has called and is all in");
     	}
     }
-
+    public void disperseChips(){
+    	//this really needs a recursive solution due to the fact that we can have multiple pots based off players being all in at different amounts.  
+    	//for the time being i'm going to assume 2 players and distribute the chips based off the hand strength.
+    	if(bot1.inHand()){
+    		if(player1.inHand()){
+    			if(player1.getHandValue() > bot1.getHandValue()){//player won
+    				player1.setChips(player1.getChips() + pot);
+    			} else {
+    				if(player1.getHandValue() == bot1.getHandValue()){//tied
+    					player1.setChips(player1.getChips() + pot - pot/2);
+    					bot1.setChips(bot1.getChips() + pot/2);
+    				} else {//player lost
+    					bot1.setChips(bot1.getChips() + pot);
+    				}
+    			}
+    		} else {//player folded
+    			bot1.setChips(bot1.getChips() + pot);
+    		}
+    		
+    	} else {//bot folded
+    		player1.setChips(player1.getChips() + pot);
+    	}
+    }
     public void playHand(){
+    	boolean onceThrough = false;
+    	Player prevPlayer;
     	
+    	createHand();
+    	roundOfBetting();
+    	flop();
+    	roundOfBetting();
+    	turn();
+    	roundOfBetting();
+    	river();
+    	roundOfBetting();
+    	disperseChips();
+    	
+    	//remove players with no chips
+    	activePlayer = dealer.getNextPlayer();
+    	prevPlayer = dealer;
+    	while(activePlayer != dealer.getNextPlayer() || !onceThrough){
+    		onceThrough = true;
+    		if(activePlayer.getChips() <= 0){
+    			prevPlayer.setNextPlayer(activePlayer.getNextPlayer());
+    		} else {
+    			prevPlayer = activePlayer;
+    		}
+    		activePlayer = activePlayer.getNextPlayer();
+    	}
+    	
+    	//advance dealer and keep going
+    	dealer = dealer.getNextPlayer();
     }
     public void roundOfBetting(){
     	boolean firstItem = false;
@@ -181,9 +236,87 @@ public class gameState {
     	}
     }
     public void getPlayerAction(){
-    	
+    	String response;
+    	boolean valid = false;
+    	printGameState();
+    	while(!valid){//make sure we receive a valid response
+	    	if(activePlayer.getChipsInPot() == chipsToCall){//no raise or call is required
+	    		if(activePlayer.getChips() > minRaise){//player has 3 options
+	    			System.out.println("You can (B)et, (C)heck, or go (A)ll-in.  Enter 'B', 'C', or 'A' and hit 'Enter'");
+	    			System.out.println("Minimum Bet is: " + minRaise);
+	    			response = getInput();
+	    		} else {//player has 2 options
+	    			System.out.println("You can (C)heck or go (A)ll-in.  Enter 'C' or 'A' and hit 'Enter'");
+	    			response = getInput();
+	    		}    		
+	    	} else {//player needs to call, raise, or fold
+	    		if(activePlayer.getChips() > (minRaise + chipsToCall - activePlayer.getChipsInPot())){//player has 4 options
+	    			System.out.println("You can (R)aise, (C)all, (F)old, or go (A)ll-in.  Enter 'R', 'C', 'F', or 'A' and hit 'Enter'");
+	    			System.out.println("Minimum Raise is: " + minRaise);
+	    			response = getInput();
+	    		} else {
+	    			if(activePlayer.getChips() > (chipsToCall - activePlayer.getChipsInPot())){//player can cover a call, but does not have enough for the min raise
+	    				System.out.println("You can (C)all, (F)old, or go (A)ll-in.  Enter 'C', 'F', or 'A' and hit 'Enter'");
+	    				response = getInput();
+	    			} else {//player will be going all in if they don't fold
+	    				System.out.println("You can (F)old or go (A)ll-in.  Enter 'F' or 'A' and hit 'Enter'");
+	    				response = getInput();
+	    			}
+	    		}
+	    	}
+	    	switch(response){
+	    	case "A":	valid = true;
+	    				break;
+	    	case "B": 	if(activePlayer.getChipsInPot() == chipsToCall && activePlayer.getChips() > minRaise){//player wants to bet, verify they have sufficent funds to make min bet
+	    					valid = true;
+	    				}
+	    				break;
+	    	case "C":	if(activePlayer.getChipsInPot() == chipsToCall || activePlayer.getChips() > (chipsToCall - activePlayer.getChipsInPot())){//player wants to call/check, verify they have funds to do so
+	    					valid = true;
+	    				}
+	    				break;
+	    	case "R":	if((activePlayer.getChips() - activePlayer.getChipsInPot()) > (chipsToCall + minRaise)){//player wants to raise, verify they have fund to do so
+	    					valid = true;
+	    				}
+	    				break;
+	    	case "F":	if(activePlayer.getChipsInPot() < chipsToCall){//player wants to fold, verify folding is valid option
+	    					valid = true;
+	    				}
+	    				break;
+	    	}
+    	}
+    	processResponse(response);
     }
-    
+    public String getInput(){
+    	return input.next();
+    }
+    public void processResponse(String r){
+    	if(r == "B" || r=="R"){//get bet/raise amount and process
+    		boolean valid = false;
+    		int amt;
+    		while(!valid){
+    			System.out.println("Enter amount to raise (" + minRaise + " - " + (activePlayer.getChips() - (chipsToCall - activePlayer.getChipsInPot())) );
+    			amt = input.nextInt();
+    			if(amt >= minRaise && amt <= (activePlayer.getChips() - (chipsToCall - activePlayer.getChipsInPot()))){
+    				raise(amt);
+    				valid = true;
+    			}
+    		}
+    	}
+    	if(r == "A"){//player is going all in
+    		if(activePlayer.getChips() > 0){
+    			raise(activePlayer.getChips() - (chipsToCall - activePlayer.getChipsInPot()));
+    		}    		
+    	}
+    	if(r == "C"){//process check/call
+    		if(!check()){
+    			call();
+    		}
+    	}
+    	if(r == "F"){//fold
+    		fold();
+    	}
+    }
 	public void revealBot1(){
 		bot1Revealed = true;
 	}
