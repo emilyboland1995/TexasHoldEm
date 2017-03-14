@@ -21,13 +21,25 @@ public class PostFlopHandRanker {
 	private static final long HIGH_CARD = 1;
 	
 	/**
+	 * Calculates and returns the relative strength of the best hand
+	 * present given one player's hole cards plus the existing board
+	 * cards.
+	 * @param hand		One player's hole cards plus any board cards
+	 * @return			The relative strength of the best hand
+	 * 					present.
+	 */
+	public static double getRelativeHandStrength(Card[] hand) {
+		return getAbsoluteHandStrength(hand) / (914 * Math.multiplyExact(10000, 10000));
+	}
+	
+	/**
 	 * Calculates and returns the strength of the strongest hand possible
 	 * given the player's hole cards plus any board cards.
 	 * @param hand		One player's hole cards plus any board cards
 	 * @return			A long containing a numeric representation of this
 	 * 					hand which representing its relative strength.
 	 */
-	public static long getHandRank(Card[] hand) {
+	public static long getAbsoluteHandStrength(Card[] hand) {
 		long handRank= 0;
 		
 		long majorFactor = Math.multiplyExact(10000, 1000000);

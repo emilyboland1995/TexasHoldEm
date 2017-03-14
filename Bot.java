@@ -24,15 +24,29 @@ public class Bot extends Player {
 	 */
 	public void getAction(Game game) {
 		if (!game.flopFlag) { // Pre-flop
-			long handStrength = PreFlopHandRanker.getPreFlopStrengthWeak(this.holeCards);
+			double relativeStrength = PreFlopHandRanker.getRelativeHandStrengthWeak(this.holeCards);
+			if (relativeStrength < 0.2) {
+				// Fold
+			} else if (relativeStrength < 0.7) {
+				// call
+			} else { // relativeStrength >= 0.7
+				// raise
+			}
 		} else {// Post-flop
-			long handStrength = PostFlopHandRanker.getHandRank(getAllCards(game, this.holeCards));
+			double relativeStrength = PostFlopHandRanker.getRelativeHandStrength(getAllCards(game, this.holeCards));
+			if (relativeStrength < 0.3) {
+				// Fold
+			} else if (relativeStrength < 0.8) {
+				// call
+			} else { // relativeStrength >= 0.8
+				// raise
+			}
 		}
 	}
 	
 	/**
 	 * Combines one player's hole Cards with any board cards to
-	 * form a signle Card[]
+	 * form a single Card[]
 	 * @param game			The current Game object containing
 	 * 						all the game info.
 	 * @param holeCards		One player's hole cards
