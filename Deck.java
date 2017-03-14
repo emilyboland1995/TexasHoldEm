@@ -49,6 +49,15 @@ public class Deck {
 		    }
 	  }
 	  
+	  /**
+	   * Resets the deck by "re-adding" any removed
+	   * cards and shuffling the deck.
+	   */
+	  public void resetDeck() {
+		  counter = 0;
+		  this.shuffleDeck();
+	  }
+	  
 	  public Card drawCard() {
 		  if (counter == deckOfCards.length) {
 			  throw new NoSuchElementException("The deck is empty.");
