@@ -1,3 +1,4 @@
+import java.util.NoSuchElementException;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -46,6 +47,13 @@ public class Deck {
 		      deckOfCards[index] = deckOfCards[i];
 		      deckOfCards[i] = a;
 		    }
+	  }
+	  
+	  public Card drawCard() {
+		  if (counter == deckOfCards.length) {
+			  throw new NoSuchElementException("The deck is empty.");
+		  }
+		  return deckOfCards[counter++]; // Return card then increment counter
 	  }
 	  
 	  public void printDeck()

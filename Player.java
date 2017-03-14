@@ -3,7 +3,7 @@ public class Player {
 	String playerName;
 	Integer chips;
 	Integer chipsInPot;
-	Cards[] holeCards = new Cards[2];
+	Card[] holeCards = new Card[2];
 	Player nextPlayer;
 	boolean inHand;
 	
@@ -42,10 +42,10 @@ public class Player {
 	public void setChipsInPot(Integer chipsInPot) {
 		this.chipsInPot = chipsInPot;
 	}
-	public Cards[] getHoleCards() {
+	public Card[] getHoleCards() {
 		return holeCards;
 	}
-	public void setHoleCards(Cards[] holeCards) {
+	public void setHoleCards(Card[] holeCards) {
 		this.holeCards = holeCards;
 	}
 	public boolean inHand(){

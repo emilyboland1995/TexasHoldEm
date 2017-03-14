@@ -11,17 +11,17 @@ public class Card {
 	    cardValue = value;
 	  }
 
-	  public String getValueStr() {
+	  public String getRankString() {
 		  //Print the string value of the card ranking
 	    return cardValue;
 	  }
 
-	  public String getSuitStr() {
+	  public String getSuitString() {
 		  //Print the string value of the card suit 
 	    return cardSuit;
 	  }
 	  
-	  public int getValInt()
+	  public int getRankInt()
 	  {
 		  //Print the integer value of the card ranking 
 		  if (cardValue.equals("Jack"))
@@ -78,6 +78,6 @@ public class Card {
 	  
 	  public String printIntVals() {
 		  //Print the formatted rank and suit of the card 
-	    return String.format(getValInt() + " of " + getSuitInt());
+	    return String.format(getRankInt() + " of " + getSuitInt());
 	  }
 }
