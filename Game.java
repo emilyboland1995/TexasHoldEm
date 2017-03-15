@@ -5,11 +5,13 @@ import java.util.Scanner;
 public class Game {
 	Scanner input = new Scanner(System.in);
 	
+	private static final int STARTING_CHIPS = 1000;
+	
 	int pot;							//current chip value in pot
 	int smallBlind; 					//current small blind
 	int bigBlind; 						//big blind value
 	int hands;							//count of hands played
-	Integer minRaise;					//identifies min raise amount
+	int minRaise;					//identifies min raise amount
 	int chipsToCall;					//identifies the total amount in chips a player needs in pot to call, this amount is cumulative
 	Card[] boardCards;					//5 cards holding for board
 	boolean flopFlag;					//flags whether flop is visible
@@ -27,13 +29,25 @@ public class Game {
 	public Game() {
 		boardCards = new Card[5];
 		pot = 0;
-		smallBlind = 0;
-		bigBlind = 0;
+		smallBlind = 25;
+		bigBlind = 50;
 		flopFlag = false;
 		turnFlag = false;
 		riverFlag = false;
 		botRevealed = false;
+		
+		
+		bot = new Bot("Bot", STARTING_CHIPS);
+		player = new Player("User", STARTING_CHIPS);
+		
 		dealer = bot;
+		
+		// Setup circular linked list for player
+		bot.setNextPlayer(player);
+		player.setNextPlayer(bot);
+		
+		//playGame
+		playGame();
 	}
 	
 	// Play a game of Texas Hold 'em
@@ -96,12 +110,13 @@ public class Game {
 			activePlayer = activePlayer.getNextPlayer();
 		}
 		//*************deal cards and set board cards*******************
+		activePlayer = dealer.getNextPlayer();
 		for (int x = 0; x < playersInHand; x++) {
 			//deal player cards
-			activePlayer = dealer.getNextPlayer();
 			holeCards[0] = deck.drawCard();
 			holeCards[1] = deck.drawCard();
-			activePlayer.setHoleCards(holeCards);			
+			activePlayer.setHoleCards(holeCards);
+			activePlayer = activePlayer.getNextPlayer();
 		}
 		
 		//set boardcards
@@ -250,11 +265,16 @@ public class Game {
     }
     public void roundOfBetting(){
     	boolean firstItem = false;
+    	Player lastToRaise;
     	//first item is just a boolean variable set to make sure the loop below cycles through all players at least one time
-    	Player lastToRaise = dealer.getNextPlayer();
     	//if before flop 'lastToRaise will initially be set to player after bigBlind
     	//for 2 players this will be the dealer
-    	lastToRaise = dealer;
+    	if(flopFlag){
+    		lastToRaise = dealer.getNextPlayer();
+    	} else {
+    		lastToRaise = dealer;
+    	}
+    	activePlayer = lastToRaise;
     	while(!firstItem || activePlayer != lastToRaise){
     		//update firstItem flag
     		firstItem = true;
@@ -262,9 +282,6 @@ public class Game {
     		if(activePlayer instanceof Bot){//send info to bot class and get return of action to act on
     			bot.getAction(this);
     		} else {//this is a human player
-    			//display gameState
-    			printGameState();
-    			//give options for action
     			//verify not all in
     			if(activePlayer.getChips() == 0){//player is all in, no action is required
     				//message here if we so choose to
@@ -305,17 +322,18 @@ public class Game {
 	    			}
 	    		}
 	    	}
+	    	response = response.toUpperCase();
 	    	switch(response){
 	    	case "A":	valid = true;
-	    				break;
+	    				break;	
 	    	case "B": 	if (activePlayer.getChipsInPot() == chipsToCall && activePlayer.getChips() > minRaise) {//player wants to bet, verify they have sufficent funds to make min bet
-	    					valid = true;
+	    				valid = true;
 	    				}
-	    				break;
+	    				break;		
 	    	case "C":	if(activePlayer.getChipsInPot() == chipsToCall || activePlayer.getChips() > (chipsToCall - activePlayer.getChipsInPot())){//player wants to call/check, verify they have funds to do so
 	    					valid = true;
 	    				}
-	    				break;
+	    				break;	
 	    	case "R":	if((activePlayer.getChips() - activePlayer.getChipsInPot()) > (chipsToCall + minRaise)){//player wants to raise, verify they have fund to do so
 	    					valid = true;
 	    				}
@@ -333,11 +351,11 @@ public class Game {
     	return input.next();
     }
     public void processResponse(String r){
-    	if(r == "B" || r=="R"){//get bet/raise amount and process
+    	if(r.equals("B") || r.equals("R")){//get bet/raise amount and process
     		boolean valid = false;
     		int amt;
     		while(!valid){
-    			System.out.println("Enter amount to raise (" + minRaise + " - " + (activePlayer.getChips() - (chipsToCall - activePlayer.getChipsInPot())) );
+    			System.out.println("Enter amount to raise (" + minRaise + " - " + (activePlayer.getChips() - (chipsToCall - activePlayer.getChipsInPot()) + ")") );
     			amt = input.nextInt();
     			if(amt >= minRaise && amt <= (activePlayer.getChips() - (chipsToCall - activePlayer.getChipsInPot()))){
     				raise(amt);
@@ -345,17 +363,17 @@ public class Game {
     			}
     		}
     	}
-    	if(r == "A"){//player is going all in
+    	if(r.equals("A")){//player is going all in
     		if(activePlayer.getChips() > 0){
     			raise(activePlayer.getChips() - (chipsToCall - activePlayer.getChipsInPot()));
     		}    		
     	}
-    	if(r == "C"){//process check/call
+    	if(r.equals("C")){//process check/call
     		if(!check()){
     			call();
     		}
     	}
-    	if(r == "F"){//fold
+    	if(r.equals("F")){//fold
     		fold();
     	}
     }
@@ -419,9 +437,11 @@ public class Game {
 		} else {
 			System.out.println("Hole Cards: ??");
 		}
+		System.out.println(flopFlag + " " + turnFlag + " " + riverFlag);
 		
 		//print stats... unsure what to put here
 		
 	}
 	
 }
+
