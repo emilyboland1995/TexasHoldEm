@@ -1,3 +1,5 @@
+// Current Game class (possibly replaces gameState)
+
 import java.util.Scanner;
 
 public class Game {
@@ -21,8 +23,8 @@ public class Game {
 	boolean botRevealed;				//flags whether bot cards revealed
 	Deck deck = new Deck();				//deck of cards
 	
-	
-	public Game(){
+	// Basic Constructor for Game.
+	public Game() {
 		boardCards = new Card[5];
 		pot = 0;
 		smallBlind = 0;
@@ -33,11 +35,52 @@ public class Game {
 		botRevealed = false;
 		dealer = bot;
 	}
+	
+	// Play a game of Texas Hold 'em
+	public void playGame() {
+	    if (hasChips() && userWantsToContinue()) {
+	        playHand(); // Play hand
+	    } else {
+	        System.exit(0); // Exit game
+	    }
+	}
+	
+	
+	public boolean hasChips(){
+	    if player.getChips() > 0 && dealer.getChips() > 0){
+	        return true;
+	    } else {
+	        return false;
+	    }
+	}
+	
+	// Ask player whether they want to continue playing
+	// or not.
+	public boolean userWantsToContinue() {
+	    System.out.println("Would you like to play again? (y/n)");	   		
+	   	wantsToPlay = userInput.next().charAt(0); 
+	    wantsToPlay = Character.toLowerCase(wantsToPlay);
+	   		  			
+	    while (wantsToPlay != 'y' && wantsToPlay != 'n') {
+	   		System.out.println("INVALID CHARACTER!");
+	   		System.out.println("Would you like to play again? (y/n)");	   		
+	   		wantsToPlay = userInput.next().charAt(0); 
+	   		wantsToPlay = Character.toLowerCase(wantsToPlay);
+	   	}
+	   	if (wantsToPlay=='y') {
+	   		System.out.println(); 
+	   		System.out.println("---------------------");
+	   		return true;
+	   	}
+	    else if (wantsToPlay=='n')
+	   	{
+	   		return false;
+	   	}
+	}
 
 	public void createHand(){
+	    deck.shuffleDeck();
 		Card[] holeCards = new Card[2];
-		
-		deck.shuffleDeck();
 		playersInHand = 1;
 		//make sure dealer status is set to inHand
 		dealer.setInHand(true);
@@ -58,32 +101,18 @@ public class Game {
 		for (int x = 0; x < playersInHand; x++) {
 			//deal player cards
 			activePlayer = dealer.getNextPlayer();
-			holeCards[0] = deck.getCard(x);
-			holeCards[1] = deck.getCard(x + playersInHand);
+			holeCards[0] = deck.drawCard();
+			holeCards[1] = deck.drawCard();
 			activePlayer.setHoleCards(holeCards);			
 		}
-		//set boardcards
-		//skip 1 card for burn
 		
-		// Perhaps this instead?
+		//set boardcards
 		boardCards[0] = deck.drawCard();
 		boardCards[1] = deck.drawCard();
 		boardCards[2] = deck.drawCard();
-		//skip 1 card for burn
-		deck.drawCard();
 		boardCards[3] = deck.drawCard();
-		//skip 1 card for burn
-		deck.drawCard();
 		boardCards[4] = deck.drawCard();
-		
-		
-		boardCards[0] = deck.getCard(2*playersInHand + 1);
-		boardCards[1] = deck.getCard(2*playersInHand + 2);
-		boardCards[2] = deck.getCard(2*playersInHand + 3);
-		//skip 1 card for burn
-		boardCards[3] = deck.getCard(2*playersInHand + 5);
-		//skip 1 card for burn
-		boardCards[4] = deck.getCard(2*playersInHand + 7);
+
 		//******************end deal cards*****************************
 		
 		//******************blinds*************************************
@@ -126,7 +155,7 @@ public class Game {
     	activePlayer.setInHand(false);
     	playersInHand--;
     }
-    public boolean raise(int raiseAmt){//returns true if successful
+    public boolean raise(int raiseAmt) { //returns true if successful
     	if(raiseAmt + chipsToCall - activePlayer.getChipsInPot() > 0 && (raiseAmt >= minRaise || raiseAmt + (chipsToCall - activePlayer.getChipsInPot()) == activePlayer.getChips())){
     		//adjust minRaise
     		if(raiseAmt > minRaise){
@@ -219,6 +248,7 @@ public class Game {
     	
     	//advance dealer and keep going
     	dealer = dealer.getNextPlayer();
+    	deck.resetdeck();
     }
     public void roundOfBetting(){
     	boolean firstItem = false;
@@ -232,7 +262,7 @@ public class Game {
     		firstItem = true;
     		//Get action from player or Bot class
     		if(activePlayer instanceof Bot){//send info to bot class and get return of action to act on
-    			//to be completed once we have bot class set up
+    			bot.getAction(this);
     		} else {//this is a human player
     			//display gameState
     			printGameState();
@@ -248,12 +278,12 @@ public class Game {
     		activePlayer = activePlayer.getNextPlayer();
     	}
     }
-    public void getPlayerAction(){
+    public void getPlayerAction() {
     	String response = "";
     	boolean valid = false;
     	printGameState();
-    	while(!valid){//make sure we receive a valid response
-	    	if(activePlayer.getChipsInPot() == chipsToCall){//no raise or call is required
+    	while (!valid){//make sure we receive a valid response
+	    	if (activePlayer.getChipsInPot() == chipsToCall) {//no raise or call is required
 	    		if(activePlayer.getChips() > minRaise){//player has 3 options
 	    			System.out.println("You can (B)et, (C)heck, or go (A)ll-in.  Enter 'B', 'C', or 'A' and hit 'Enter'");
 	    			System.out.println("Minimum Bet is: " + minRaise);
@@ -280,7 +310,7 @@ public class Game {
 	    	switch(response){
 	    	case "A":	valid = true;
 	    				break;
-	    	case "B": 	if(activePlayer.getChipsInPot() == chipsToCall && activePlayer.getChips() > minRaise){//player wants to bet, verify they have sufficent funds to make min bet
+	    	case "B": 	if (activePlayer.getChipsInPot() == chipsToCall && activePlayer.getChips() > minRaise) {//player wants to bet, verify they have sufficent funds to make min bet
 	    					valid = true;
 	    				}
 	    				break;
@@ -296,7 +326,7 @@ public class Game {
 	    					valid = true;
 	    				}
 	    				break;
-	    	default:	throw new IllegalStateException();
+	    	default:	valid = false; // Invalid user input
 	    	}
     	}
     	processResponse(response);
