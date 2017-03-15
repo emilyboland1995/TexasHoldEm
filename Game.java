@@ -47,7 +47,7 @@ public class Game {
 	
 	
 	public boolean hasChips(){
-	    if player.getChips() > 0 && dealer.getChips() > 0){
+	    if (player.getChips() > 0 && dealer.getChips() > 0){
 	        return true;
 	    } else {
 	        return false;
@@ -57,14 +57,15 @@ public class Game {
 	// Ask player whether they want to continue playing
 	// or not.
 	public boolean userWantsToContinue() {
+		char wantsToPlay = 'a';
 	    System.out.println("Would you like to play again? (y/n)");	   		
-	   	wantsToPlay = userInput.next().charAt(0); 
+	   	wantsToPlay = input.next().charAt(0); 
 	    wantsToPlay = Character.toLowerCase(wantsToPlay);
 	   		  			
 	    while (wantsToPlay != 'y' && wantsToPlay != 'n') {
 	   		System.out.println("INVALID CHARACTER!");
 	   		System.out.println("Would you like to play again? (y/n)");	   		
-	   		wantsToPlay = userInput.next().charAt(0); 
+	   		wantsToPlay = input.next().charAt(0); 
 	   		wantsToPlay = Character.toLowerCase(wantsToPlay);
 	   	}
 	   	if (wantsToPlay=='y') {
@@ -72,10 +73,7 @@ public class Game {
 	   		System.out.println("---------------------");
 	   		return true;
 	   	}
-	    else if (wantsToPlay=='n')
-	   	{
-	   		return false;
-	   	}
+	    return false;
 	}
 
 	public void createHand(){
@@ -201,10 +199,10 @@ public class Game {
     	//for the time being i'm going to assume 2 players and distribute the chips based off the hand strength.
     	if(bot.inHand()){
     		if(player.inHand()){
-    			if(player.getHandValue() > bot.getHandValue()){//player won
+    			if(player.getHandValue(this) > bot.getHandValue(this)){ //player won
     				player.setChips(player.getChips() + pot);
     			} else {
-    				if(player.getHandValue() == bot.getHandValue()){//tied
+    				if(player.getHandValue(this) == bot.getHandValue(this)){//tied
     					player.setChips(player.getChips() + pot - pot / 2);
     					bot.setChips(bot.getChips() + pot/2);
     				} else {//player lost
@@ -248,7 +246,7 @@ public class Game {
     	
     	//advance dealer and keep going
     	dealer = dealer.getNextPlayer();
-    	deck.resetdeck();
+    	deck.resetDeck();
     }
     public void roundOfBetting(){
     	boolean firstItem = false;
