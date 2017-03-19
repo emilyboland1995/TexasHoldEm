@@ -29,7 +29,7 @@ public class PostFlopHandRanker {
 	 * 					present.
 	 */
 	public static double getRelativeHandStrength(Card[] hand) {
-		return getAbsoluteHandStrength(hand) / (914 * Math.multiplyExact(10000, 10000));
+		return (double) getAbsoluteHandStrength(hand) / (914 * Math.multiplyExact((long) 10000, 10000));
 	}
 	
 	/**
@@ -42,7 +42,7 @@ public class PostFlopHandRanker {
 	public static long getAbsoluteHandStrength(Card[] hand) {
 		long handRank= 0;
 		
-		long majorFactor = Math.multiplyExact(10000, 1000000);
+		long majorFactor = Math.multiplyExact((long) 10000, 1000000);
 		
 		int[] suitCounts = new int[4];
 		int[] rankCounts = new int[13];
@@ -228,14 +228,12 @@ public class PostFlopHandRanker {
 			while (cardsAdded < 5) {
 				cardsAdded *= 100;
 				int currentCardValue = hand[index].getRankInt();
-				if (currentCardValue != hand[twoOfAKindHigh].getRankInt()) {
-					if (currentCardValue == 1) {
-						highestCardsValue += 14;
-					} else {
-						highestCardsValue += currentCardValue;
-					}
-					cardsAdded++;
+				if (currentCardValue == 1) {
+					highestCardsValue += 14;
+				} else {
+					highestCardsValue += currentCardValue;
 				}
+				cardsAdded++;
 				index--;
 			}
 			handRank += highestCardsValue;
@@ -249,7 +247,21 @@ public class PostFlopHandRanker {
 	 * @param hand		The hole cards plus any board cards
 	 */
 	private static void sortByRank(Card[] hand) {
-		Arrays.sort(hand, (a, b) -> a.getRankInt() < b.getRankInt() ? -1 
-				: a.getRankInt() == b.getRankInt() ? 0 : 1);
+		Arrays.sort(hand, new CompareByRank());
+	}
+	private static class CompareByRank implements Comparator<Card> {
+
+		@Override
+		public int compare(Card o1, Card o2) {
+			if (o1.getRankInt() == 1
+					|| o1.getRankInt() > o2.getRankInt()) {
+				return 1;
+			} else if (o1.getRankInt() == o2.getRankInt()) {
+				return 0;
+			} else {
+				return -1;
+			}
+		}
+		
 	}
 }

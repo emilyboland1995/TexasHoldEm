@@ -10,11 +10,14 @@ public class Deck {
 	    "Ace", "2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King"
 	  };
 
-	  Card[] deckOfCards;
-	  int counter = 0; 
+	  private Card[] deckOfCards;
+	  private int deckIndex;
+	  
 	  
 	  public Deck() 
 	  {
+		  deckIndex = 0;
+		  int counter = 0; 
 		  deckOfCards = new Card[52];
 		  while (counter < 51)
 		  {
@@ -24,13 +27,8 @@ public class Deck {
 			      {
 			        Card newCard = new Card(suit, value);
 			        deckOfCards[counter] = newCard;
-			        //System.out.println(newCard.printCard()); 
-			        //System.out.println(newCard.printIntVals());
 			        counter++;     
 			      }
-			      
-			      
-
 			  }
 		  }
 	  }
@@ -54,37 +52,20 @@ public class Deck {
 	   * cards and shuffling the deck.
 	   */
 	  public void resetDeck() {
-		  counter = 0;
+		  deckIndex = 0;
 		  this.shuffleDeck();
 	  }
 	  
 	  public Card drawCard() {
-		  if (counter == deckOfCards.length) {
+		  if (deckIndex == deckOfCards.length) {
 			  throw new NoSuchElementException("The deck is empty.");
 		  }
-		  return deckOfCards[counter++]; // Return card then increment counter
+		  return deckOfCards[deckIndex++]; // Return card then increment counter
 	  }
 	  
-	  public void printDeck()
-	  {
-		  int counter = 0; 
-		  while (counter < 51)
-		  {
-			  for (String suit : SUITS) 
-			  {
-			      for ( String value : VALUES) 
-			      {
-			        //Card newCard = new Card(suit, value);
-			       // deckOfCards[counter] = newCard;
-			        System.out.println(deckOfCards[counter].printCard()); 
-			        //System.out.println(newCard.printIntVals());
-			        counter++;     
-			      }
-			      
-			      
-
-			  }
+	  public void printDeck() {
+		  for (Card card : deckOfCards) {
+			  System.out.println(card.toString());
 		  }
-
-}
+	  }
 }

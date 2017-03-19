@@ -1,19 +1,18 @@
 
 public class Card {
-	
-	  String cardValue;
-	  String cardSuit;
-	  int cardValInt; //Ace=1, Jack=11, Queen=12, King=13
-	  int cardSuitInt; //Spades=1, Clubs=2, Hearts=3, Diamonds=4 
+	  private String cardRank;
+	  private String cardSuit;
+	  private int cardValInt; //Ace=1, Jack=11, Queen=12, King=13
+	  private int cardSuitInt; //Spades=1, Clubs=2, Hearts=3, Diamonds=4 
 
 	  public Card(String suit, String value) {
 	    cardSuit = suit;
-	    cardValue = value;
+	    cardRank = value;
 	  }
 
 	  public String getRankString() {
 		  //Print the string value of the card ranking
-	    return cardValue;
+	    return cardRank;
 	  }
 
 	  public String getSuitString() {
@@ -21,28 +20,27 @@ public class Card {
 	    return cardSuit;
 	  }
 	  
-	  public int getRankInt()
-	  {
+	  public int getRankInt() {
 		  //Print the integer value of the card ranking 
-		  if (cardValue.equals("Jack"))
+		  if (cardRank.equals("Jack"))
 		  {
 			  cardValInt = 11; 
 		  }
-		  else if (cardValue.equals("Queen"))
+		  else if (cardRank.equals("Queen"))
 		  {
 			  cardValInt = 12; 
 		  }
-		  else if (cardValue.equals("King"))
+		  else if (cardRank.equals("King"))
 		  {
 			  cardValInt = 13; 
 		  }
-		  else if (cardValue.equals("Ace"))
+		  else if (cardRank.equals("Ace"))
 		  {
 			  cardValInt = 1; 
 		  }
 		  else
 		  {
-			  cardValInt = Integer.parseInt(cardValue); 
+			  cardValInt = Integer.parseInt(cardRank); 
 		  }
 
 		  return cardValInt; 
@@ -71,9 +69,9 @@ public class Card {
 		  return cardSuitInt; 
 	  }
 
-	  public String printCard() {
+	  public String toString() {
 		  //Print the formatted rank and suit of the card 
-	    return String.format("%s of %s", cardValue, cardSuit);
+	    return String.format("%s of %s", cardRank, cardSuit);
 	  }
 	  
 	  public String printIntVals() {

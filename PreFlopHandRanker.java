@@ -2,7 +2,7 @@
 public class PreFlopHandRanker {
 	
 	public static double getRelativeHandStrengthWeak(Card[] holeCards) {
-		return getAbsoluteHandStrengthWeak(holeCards) / 140000;
+		return (double) getAbsoluteHandStrengthWeak(holeCards) / 140000;
 	}
 	
 	/**
@@ -13,7 +13,7 @@ public class PreFlopHandRanker {
 	 */
 	public static long getAbsoluteHandStrengthWeak(Card[] holeCards) {
 		if (holeCards.length != 2) {
-			throw new IllegalArgumentException("holdCards must have a length equal to 2.");
+			throw new IllegalArgumentException("holeCards must have a length equal to 2.");
 		}
 		long strength = 0;
 		if (holeCards[0].getRankInt() == holeCards[1].getRankInt()) { // Pair
@@ -25,7 +25,15 @@ public class PreFlopHandRanker {
 			strength *= 10000;
 		}
 		if (holeCards[0].getSuitInt() == holeCards[1].getSuitInt()) { // Same suit
-			strength += (holeCards[0].getRankInt() + holeCards[1].getRankInt()) * 1000;
+			int card1 = holeCards[0].getRankInt();
+			int card2 = holeCards[1].getRankInt();
+			if (card1 == 1) {
+				card1 = 14;
+			}
+			if (card2 == 1) {
+				card2 = 14;
+			}
+			strength += (card1 + card2) * 1000;
 		}
 		strength += holeCards[0].getRankInt() + holeCards[1].getRankInt();
 		return strength;

@@ -1,3 +1,5 @@
+import java.util.Random;
+
 /**
  * This class defines a computer opponent or bot for the game.
  * The main addition the Bot class makes to the Player class
@@ -7,6 +9,7 @@
 
 
 public class Bot extends Player {
+	private Random rand;
 	
 	/**
 	 * Basic constructor for instances of Bot
@@ -15,6 +18,7 @@ public class Bot extends Player {
 	 */
 	public Bot(String botName,int startingChips) {
 		super(botName, startingChips);
+		rand = new Random();
 	}
 	
 	/**
@@ -23,57 +27,41 @@ public class Bot extends Player {
 	 * 					the current game info.
 	 */
 	public void getAction(Game game) {
-		if (!game.flopFlag) { // Pre-flop
-			double relativeStrength = PreFlopHandRanker.getRelativeHandStrengthWeak(this.holeCards);
-			if (relativeStrength < 0.2) {
-				// Fold
-			} else if (relativeStrength < 0.7) {
-				// call
-			} else { // relativeStrength >= 0.7
-				// raise
+		if (!game.hasFlopOccured()) { // Pre-flop
+			System.out.println("Pre Fold");
+			double relativeStrength = PreFlopHandRanker.getRelativeHandStrengthWeak(this.getHoleCards());
+			if (relativeStrength > 0.5) {
+				if (!game.check()) {
+					game.call();
+				}
+			} else {
+				double choice = rand.nextDouble();
+				if (choice > 0.2) {
+					if (!game.check()) {
+						game.call();
+					}
+				} else {
+					game.fold();
+				}
 			}
 		} else {// Post-flop
-			double relativeStrength = PostFlopHandRanker.getRelativeHandStrength(getAllCards(game, this.holeCards));
+			System.out.println("Post Fold");
+			double relativeStrength = PostFlopHandRanker.getRelativeHandStrength(super.getAllCards(game, this.getHoleCards()));
 			if (relativeStrength < 0.3) {
-				// Fold
+				game.fold();
 			} else if (relativeStrength < 0.8) {
-				// call
+				if (!game.check()) {
+					game.call();
+				}
 			} else { // relativeStrength >= 0.8
-				// raise
+				if (this.getChips() - this.getChipsInPot() > 0) {
+					game.raise((this.getChips() - this.getChipsInPot()) / 2);
+				} else {
+					if (!game.check()) {
+						game.call();
+					}
+				}
 			}
 		}
 	}
-	
-	/**
-	 * Combines one player's hole Cards with any board cards to
-	 * form a single Card[]
-	 * @param game			The current Game object containing
-	 * 						all the game info.
-	 * @param holeCards		One player's hole cards
-	 * @return				A Card[] containing all the cards
-	 * 						currently visible to the player
-	 * 						whose hole cards are provided.
-	 */
-	private Card[] getAllCards(Game game, Card[] holeCards) {
-		int size = 2;
-		if (game.flopFlag) {
-			size += 3;
-		} 
-		if (game.riverFlag) {
-			size++;
-		}
-		if (game.turnFlag) {
-			size++;
-		}
-		Card[] allCards = new Card[size];
-		allCards[0] = holeCards[0];
-		allCards[1] = holeCards[1];
-		int index = 2;
-		while (index < size) {
-			allCards[index] = game.boardCards[index - 2];
-			index++;
-		}
-		return allCards;
-	}
-	
 }

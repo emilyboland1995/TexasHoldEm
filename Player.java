@@ -1,11 +1,11 @@
 
 public class Player {
-	String playerName;
-	Integer chips;
-	Integer chipsInPot;
-	Card[] holeCards = new Card[2];
-	Player nextPlayer;
-	boolean inHand;
+	private String playerName;
+	private int chips;
+	private int chipsInPot;
+	private Card[] holeCards = new Card[2];
+	private Player nextPlayer;
+	private boolean inHand;
 	
 	Player(){
 		this("",0);
@@ -24,22 +24,22 @@ public class Player {
 	public void setNextPlayer(Player next){
 		this.nextPlayer = next;
 	}
-	public String getPlayerName() {
+	public String toString() {
 		return playerName;
 	}
 	public void setPlayerName(String playerName) {
 		this.playerName = playerName;
 	}
-	public Integer getChips() {
+	public int getChips() {
 		return chips;
 	}
-	public void setChips(Integer chips) {
+	public void setChips(int chips) {
 		this.chips = chips;
 	}
-	public Integer getChipsInPot() {
+	public int  getChipsInPot() {
 		return chipsInPot;
 	}
-	public void setChipsInPot(Integer chipsInPot) {
+	public void setChipsInPot(int chipsInPot) {
 		this.chipsInPot = chipsInPot;
 	}
 	public Card[] getHoleCards() {
@@ -70,14 +70,15 @@ public class Player {
 	 * 						whose hole cards are provided.
 	 */
 	public Card[] getAllCards(Game game, Card[] holeCards) {
+		Card[] boardCards = game.getBoardCards();
 		int size = 2;
-		if (game.flopFlag) {
+		if (game.hasFlopOccured()) {
 			size += 3;
 		} 
-		if (game.riverFlag) {
+		if (game.hasRiverOccured()) {
 			size++;
 		}
-		if (game.turnFlag) {
+		if (game.hasturnOccured()) {
 			size++;
 		}
 		Card[] allCards = new Card[size];
@@ -85,7 +86,7 @@ public class Player {
 		allCards[1] = holeCards[1];
 		int index = 2;
 		while (index < size) {
-			allCards[index] = game.boardCards[index - 2];
+			allCards[index] = boardCards[index - 2];
 			index++;
 		}
 		return allCards;
