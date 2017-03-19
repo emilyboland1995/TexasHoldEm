@@ -315,16 +315,16 @@ public class Game {
     		}
     		
     		// Verify there are players still in the hand
-    		// If no players remain, disperse chips
-    		if (!checkForRemainingPlayers()) {
+    		// If only one player remains, disperse chips
+    		if (this.playersInHand == 1) {
     			disperseChips();
     		}
     		numRounds++;
     	}
     	
-    	// Disperse chips if at list one player remains in play after
+    	// Disperse chips if at list 2 players remain in play after
     	// completing all rounds of betting
-    	if (checkForRemainingPlayers()) {
+    	if (this.playersInHand > 1) {
     		disperseChips(); //
     	}
     	
