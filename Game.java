@@ -44,9 +44,6 @@ public class Game {
 		// Setup circular linked list for player
 		bot.setNextPlayer(player);
 		player.setNextPlayer(bot);
-		
-		//playGame
-		playGame();
 	}
 	
 	/**
@@ -322,7 +319,7 @@ public class Game {
     		numRounds++;
     	}
     	
-    	// Disperse chips if at list 2 players remain in play after
+    	// Disperse chips if at least 2 players remain in play after
     	// completing all rounds of betting
     	if (this.playersInHand > 1) {
     		disperseChips(); //
