@@ -26,42 +26,46 @@ public class Bot extends Player {
 	 * @param game		The current Game object containing all
 	 * 					the current game info.
 	 */
-	public void getAction(Game game) {
+	public String getAction(Game game) {
 		if (!game.hasFlopOccured()) { // Pre-flop
-			System.out.println("Pre Fold");
+			System.out.println("Pre Flop");
 			double relativeStrength = PreFlopHandRanker.getRelativeHandStrengthWeak(this.getHoleCards());
 			if (relativeStrength > 0.5) {
 				if (!game.check()) {
-					game.call();
+					return "C";
 				}
 			} else {
 				double choice = rand.nextDouble();
 				if (choice > 0.2) {
 					if (!game.check()) {
-						game.call();
+						return "C";
 					}
 				} else {
-					game.fold();
+					return "F";
 				}
 			}
 		} else {// Post-flop
-			System.out.println("Post Fold");
+			System.out.println("Post Flop");
 			double relativeStrength = PostFlopHandRanker.getRelativeHandStrength(super.getAllCards(game, this.getHoleCards()));
+System.out.println("relativeStrength = " + relativeStrength);
 			if (relativeStrength < 0.3) {
-				game.fold();
+				return "F";
 			} else if (relativeStrength < 0.8) {
 				if (!game.check()) {
-					game.call();
+					return "C";
 				}
 			} else { // relativeStrength >= 0.8
 				if (this.getChips() - this.getChipsInPot() > 0) {
-					game.raise((this.getChips() - this.getChipsInPot()) / 2);
+					return ("R" + (this.getChips() - this.getChipsInPot()) / 2);
 				} else {
 					if (!game.check()) {
-						game.call();
+						return "C";
+					} else {
+						return "C";
 					}
 				}
 			}
 		}
+		return "error";
 	}
 }
