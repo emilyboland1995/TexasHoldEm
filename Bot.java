@@ -25,10 +25,10 @@ public class Bot extends Player {
 	 * Prompts the Bot to make a move.
 	 * @param game		The current Game object containing all
 	 * 					the current game info.
+	 * @return			Returns a string containing the bot's move
 	 */
 	public String getAction(Game game) {
 		if (!game.hasFlopOccured()) { // Pre-flop
-			System.out.println("Pre Flop");
 			double relativeStrength = PreFlopHandRanker.getRelativeHandStrengthWeak(this.getHoleCards());
 			if (relativeStrength > 0.5) {
 				if (!game.check()) {
@@ -45,9 +45,7 @@ public class Bot extends Player {
 				}
 			}
 		} else {// Post-flop
-			System.out.println("Post Flop");
 			double relativeStrength = PostFlopHandRanker.getRelativeHandStrength(super.getAllCards(game, this.getHoleCards()));
-System.out.println("relativeStrength = " + relativeStrength);
 			if (relativeStrength < 0.3) {
 				return "F";
 			} else if (relativeStrength < 0.8) {

@@ -249,6 +249,12 @@ public class PostFlopHandRanker {
 	private static void sortByRank(Card[] hand) {
 		Arrays.sort(hand, new CompareByRank());
 	}
+	
+	/**
+	 * 
+	 * A basic Comparator that compares cards by rank
+	 *
+	 */
 	private static class CompareByRank implements Comparator<Card> {
 
 		@Override

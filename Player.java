@@ -1,33 +1,87 @@
+/**
+ * 
+ * The Player class is built to represent a single player in
+ * the game. It allows a name to be specified during construction,
+ * along with the number of chips available to the player, if applicable.
+ * Instances of this class can also store the current hole cards for a player.
+ * Each instance can be assigned a link to another instance of Player. This allows
+ * a sort of linked list of players to be constructed.
+ *
+ */
 
 public class Player {
-	private String playerName;
-	private int chips;
-	private int chipsInPot;
-	private Card[] holeCards = new Card[2];
-	private Player nextPlayer;
-	private boolean inHand;
+	private String playerName;					// The name of the player
+	private int chips;							// The number of chips available to the player
+	private int chipsInPot;						// The number of chips the player has put into the current pot
+	private Card[] holeCards = new Card[2];		// The player's hole cards
+	private Player nextPlayer;					// A reference to another instance of Player (allows for linked data structures)
+	private boolean inHand;						// A flag to indicate whether the player is active in the current hand
 	
-	Player(){
+	/**
+	 * Default constructor for instances of Player.
+	 */
+	public Player() {
 		this("",0);
 	}
-	Player(String pName){
+	/**
+	 * Addition constructor for instances of Player. 
+	 * Allows the caller to provide a String to serve
+	 * as the name of the player.
+	 * @param pName		A String to serve as the name of the
+	 * 					new instance of Player.
+	 */
+	public Player(String pName){
 		this(pName, 0);		
 	}
-	Player(String pName,int startingChips){
-		playerName = pName;
-		chips = startingChips;
-		chipsInPot = 0;		
+	/**
+	 * 
+	 * @param pName			A String to serve as the name of the
+	 * 						new instance of Player.
+	 * @param startingChips	The number of starting chips available to
+	 * 						the new instance of Player.
+	 */
+	public Player(String playerName,int startingChips){
+		if (startingChips < 0) {
+			throw new IllegalArgumentException("startinChips cannot be negative.");
+		}
+		if (playerName == null) {
+			throw new NullPointerException("playerName cannot be null.");
+		}
+		this.playerName = playerName;
+		this.chips = startingChips;
+		this.chipsInPot = 0;		
 	}
+	/**
+	 * This method is only applicable when the instance of player
+	 * it is called on is part of a linked data structure.
+	 * @return		The reference to the next player.
+	 */
 	public Player getNextPlayer(){
 		return nextPlayer;
 	}
+	/**
+	 * Allows the caller to specify the next player.
+	 * @param next		A reference to another instance of Player
+	 */
 	public void setNextPlayer(Player next){
 		this.nextPlayer = next;
 	}
+	/**
+	 * A simple implementation of toString that utilizes that
+	 * returns the players name.
+	 */
 	public String toString() {
 		return playerName;
 	}
+	/**
+	 * Sets the player's name equal to playerName.
+	 * @param playerName		A String that will serve
+	 * 							as the player's name.
+	 */
 	public void setPlayerName(String playerName) {
+		if (playerName == null) {
+			throw new NullPointerException("playerName cannot be null.");
+		}
 		this.playerName = playerName;
 	}
 	public String getPlayerName(){
@@ -39,7 +93,7 @@ public class Player {
 	public void setChips(int chips) {
 		this.chips = chips;
 	}
-	public int  getChipsInPot() {
+	public int getChipsInPot() {
 		return chipsInPot;
 	}
 	public void setChipsInPot(int chipsInPot) {
@@ -58,6 +112,14 @@ public class Player {
 		this.inHand = inHand;
 	}
 	
+	/**
+	 * Returns the absolute hand strength of the best hand available
+	 * to the player, given the players hole cards and the currently
+	 * visible board cards.
+	 * @param game		A reference to the relevant instance of Game
+	 * @return			A long value containing the best absolute hand
+	 * 					strength available to the player.
+	 */
 	public long getHandValue(Game game) {
 		return PostFlopHandRanker.getAbsoluteHandStrength(getAllCards(game, this.holeCards));
 	}
