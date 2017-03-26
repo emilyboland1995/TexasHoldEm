@@ -103,7 +103,7 @@ public class Player {
 		return holeCards;
 	}
 	public void setHoleCards(Card[] holeCards) {
-		this.holeCards = holeCards;
+		this.holeCards = holeCards.clone();
 	}
 	public boolean inHand(){
 		return inHand;
