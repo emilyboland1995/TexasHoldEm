@@ -96,6 +96,7 @@ public class Deck {
 		  deckIndex = 0;
 		  this.shuffleDeck();
 		  this.stackDeck();
+		  System.out.println("*****Deck has been stacked, comment out lines 98-99 in deck class to remove deck stacking******");
 	  }
 	  
 	  public Card drawCard() {
