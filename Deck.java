@@ -47,6 +47,47 @@ public class Deck {
 		    }
 	  }
 	  
+	  public void stackDeck(){
+		  String[] suit = new String[9];
+		  String[] rank = new String[9];
+		  Card tempCard;
+		  
+		  //non-dealer holds
+		  suit[0]="Hearts";
+		  rank[0]="Queen";
+		  suit[1]="Diamonds";
+		  rank[1]="4";
+		  //dealer holds
+		  suit[2]="Spades";
+		  rank[2]="Queen";
+		  suit[3]="Clubs";
+		  rank[3]="6";
+		  //boardCards
+		  suit[4]="Diamonds";
+		  rank[4]="3";
+		  suit[5]="Hearts";
+		  rank[5]="8";
+		  suit[6]="Spades";
+		  rank[6]="2";
+		  suit[7]="Clubs";
+		  rank[7]="9";
+		  suit[8]="Clubs";
+		  rank[8]="5";
+		  
+		  //stack the deck
+		  for(int x = 0; x < 9; x++){//cycle through cards to stack
+			  //find card and deck and swap
+			  tempCard = deckOfCards[x];
+			  for(int y = x; y < 52; y++){
+				  if(deckOfCards[y].getSuitString() == suit[x] && deckOfCards[y].getRankString() == rank[x]){//found card to swap
+					  //swap cards
+					  deckOfCards[x] = deckOfCards[y];
+					  deckOfCards[y] = tempCard;
+				  }  
+			  }
+		  }
+	  }
+	  
 	  /**
 	   * Resets the deck by "re-adding" any removed
 	   * cards and shuffling the deck.
@@ -54,6 +95,7 @@ public class Deck {
 	  public void resetDeck() {
 		  deckIndex = 0;
 		  this.shuffleDeck();
+		  this.stackDeck();
 	  }
 	  
 	  public Card drawCard() {
