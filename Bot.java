@@ -31,9 +31,9 @@ public class Bot extends Player {
 		if (!game.hasFlopOccured()) { // Pre-flop
 			double relativeStrength = PreFlopHandRanker.getRelativeHandStrengthWeak(this.getHoleCards());
 			if (relativeStrength > 0.5) {
-				if (!game.check()) {
+//				if (!game.check()) {
 					return "C";
-				}
+//				}
 			} else {
 				double choice = rand.nextDouble();
 				if (choice > 0.2) {
@@ -41,17 +41,25 @@ public class Bot extends Player {
 						return "C";
 					}
 				} else {
-					return "F";
+					if(this.getChipsInPot() < game.getChipsToCall()){
+						return "F";
+					} else {//folding not required, can simply check
+						return "C";
+					}
 				}
 			}
 		} else {// Post-flop
 			double relativeStrength = PostFlopHandRanker.getRelativeHandStrength(super.getAllCards(game, this.getHoleCards()));
 			if (relativeStrength < 0.3) {
-				return "F";
-			} else if (relativeStrength < 0.8) {
-				if (!game.check()) {
+				if(this.getChipsInPot() < game.getChipsToCall()){
+					return "F";
+				} else {//folding not required, can simply check
 					return "C";
 				}
+			} else if (relativeStrength < 0.8) {
+//				if (!game.check()) {
+					return "C";
+//				}
 			} else { // relativeStrength >= 0.8
 				if (this.getChips() - this.getChipsInPot() > 0) {
 					return ("R" + (this.getChips() - this.getChipsInPot()) / 2);
