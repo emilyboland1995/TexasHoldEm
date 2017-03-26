@@ -76,7 +76,18 @@ public class Game {
 	 * 				other wise
 	 */
 	public boolean hasChips(){
-	    if (player.getChips() > 0 && dealer.getChips() > 0){
+		int playersWithChips = 0;
+		Player tempPlayer = dealer.getNextPlayer();
+		if (dealer.getChips() > 0){
+			playersWithChips++;
+		}
+		while(tempPlayer != dealer){
+			if(tempPlayer.getChips()>0){
+				playersWithChips++;
+			}
+			tempPlayer = tempPlayer.getNextPlayer();
+		}
+	    if (playersWithChips > 1){
 	        return true;
 	    } else {
 	        return false;
@@ -233,15 +244,14 @@ public class Game {
     		return false; // Cannot raise by zero or a negative number of chips
     	}
     	if(raiseAmt + chipsToCall - activePlayer.getChipsInPot() > 0 
-    			&& (raiseAmt >= minRaise 
-    			|| raiseAmt + (chipsToCall - activePlayer.getChipsInPot()) == activePlayer.getChips())){
+    			&& (raiseAmt >= minRaise || raiseAmt + (chipsToCall - activePlayer.getChipsInPot()) == activePlayer.getChips())){
     		// adjust minRaise
     		if(raiseAmt > minRaise){
     			minRaise = raiseAmt;
     		}
     		// adjust chipsToCall
     		chipsToCall = chipsToCall + raiseAmt;
-    		pot = pot + chipsToCall;
+    		pot = pot + (chipsToCall - activePlayer.getChipsInPot());
     		// adjust players chip count setChips(current stack - (new chips going in pot))
     		activePlayer.setChips(activePlayer.getChips() - (chipsToCall - activePlayer.getChipsInPot()) );
     		// adjust players chip in pot count
@@ -297,19 +307,36 @@ public class Game {
     public void disperseChips(){
     	// this really needs a recursive solution due to the fact that we can have multiple pots based off players being all in at different amounts.  
     	// for the time being i'm going to assume 2 players and distribute the chips based off the hand strength.
+    	int maxChipsToWin = 0;
     	if(bot.inHand()){
     		if(player.inHand()){
     			if(player.getHandValue(this) > bot.getHandValue(this)){ // player won
-    				player.setChips(player.getChips() + pot);
-    				System.out.println("You won " + pot + " chips!");
+    				maxChipsToWin = player.getChipsInPot() * 2;
+    				if(maxChipsToWin >= pot){//gets whole pot
+    					player.setChips(player.getChips() + pot);
+        				System.out.println("You won " + pot + " chips!");
+    				} else {//gets partial pot
+    					player.setChips(player.getChips() + maxChipsToWin);
+    					System.out.println("You won " + maxChipsToWin + " chips!");
+    					bot.setChips(bot.getChips() + pot - maxChipsToWin);
+    					System.out.println("Bot won " + (pot - maxChipsToWin) + " chips!");
+    				}
     			} else if(player.getHandValue(this) == bot.getHandValue(this)){// tied
-    				player.setChips(player.getChips() + pot - pot / 2);
-    				bot.setChips(bot.getChips() + pot / 2);
-    				System.out.println("Split pot! You won " + (pot - pot / 2) + " chips!");
-    				System.out.println("Bot won " + pot / 2 + " chips!");
+    				player.setChips(player.getChips() + player.getChipsInPot());
+    				bot.setChips(bot.getChips() + bot.getChipsInPot());
+    				System.out.println("Split pot! You won " + player.getChipsInPot() + " chips!");
+    				System.out.println("Bot won " + bot.getChipsInPot() + " chips!");
     			} else {// player lost
-    				bot.setChips(bot.getChips() + pot);
-    				System.out.println("Bot won " + pot + " chips!");
+    				maxChipsToWin = bot.getChipsInPot() * 2;
+    				if(maxChipsToWin >= pot){//gets whole pot
+    					bot.setChips(bot.getChips() + pot);
+        				System.out.println("Bot won " + pot + " chips!");
+    				} else {//gets partial pot
+    					bot.setChips(bot.getChips() + maxChipsToWin);
+    					System.out.println("Bot won " + maxChipsToWin + " chips!");
+    					player.setChips(player.getChips() + pot - maxChipsToWin);
+    					System.out.println("Player won " + (pot - maxChipsToWin) + " chips!");
+    				}
     			}
     		} else {// player folded
     			bot.setChips(bot.getChips() + pot);
@@ -320,6 +347,8 @@ public class Game {
     		player.setChips(player.getChips() + pot);
     		System.out.println("You won " + pot + " chips!");
     	}
+    	botRevealed = true;
+    	printGameState();
     }
     
     /**
@@ -369,7 +398,6 @@ public class Game {
     	int numRounds = 0;
     	
     	while (numRounds < 4 && this.playersInHand > 1) {
-    		roundOfBetting();
     		if (numRounds == 1) {
     			flop();
     		} else if (numRounds == 2) {
@@ -377,6 +405,7 @@ public class Game {
     		} else if (numRounds == 3) {
     			river();
     		}
+    		roundOfBetting();
     		numRounds++;
     	}
     	disperseChips(); // Disperse chips
@@ -403,29 +432,38 @@ public class Game {
      * from each player in turn.
      */
     public void roundOfBetting(){
-    	boolean firstItem = false;
-    	Player lastToRaise;
-    	// first item is just a boolean variable set to make sure the loop below cycles through all players at least one time
-    	// if before flop 'lastToRaise will initially be set to player after bigBlind
+    	boolean firstRound = true;
+    	Player lastToAct;
+    	// firstRound is just a boolean variable set to make sure the loop below cycles through all players at least one time
+    	// if before flop 'lastToAct will be set to big blind before flop and dealer after flop
     	// for 2 players this will be the dealer
     	if(flopFlag){
-    		lastToRaise = dealer.getNextPlayer();
+    		lastToAct = dealer;
     	} else {
-    		lastToRaise = dealer;
+    		lastToAct = dealer.getNextPlayer();
     	}
-    	activePlayer = lastToRaise;
-    	while((!firstItem || activePlayer != lastToRaise) && playersInHand > 1){
-    		// update firstItem flag
-    		firstItem = true;
+    	activePlayer = lastToAct.getNextPlayer();
+    	while((firstRound || !allSquare()) && playersInHand > 1){
+    		// update firstRound flag
+    		if(activePlayer == lastToAct){//if we have cycled around to lastToAct, everyone has had opportunity to bet/raise
+    			firstRound = false;
+    		}
     		// Get action from player or Bot class
-    		if(activePlayer instanceof Bot){// send info to bot class and get return of action to act on
-    			String response = bot.getAction(this);
-    			processBotAction(response);
+    		if(activePlayer instanceof Bot && bot.getChips() > 0){// verify bot and bot has chips
+    			if(chipsToCall > activePlayer.getChipsInPot() || player.getChips() > 0){//action still required
+    				String response;
+    				printGameState();
+    				//get and process response from bot class
+    				response = bot.getAction(this);
+//    				System.out.println("Response from bot class: " + response);
+    				processBotAction(response);
+    			}
     		} else {// this is a human player
     			// verify not all in
     			if(activePlayer.getChips() == 0){// player is all in, no action is required
     				// message here if we so choose to
     			} else {// player is not all in
+    				printGameState();
     				getPlayerAction();
     			}
     		}
@@ -433,15 +471,29 @@ public class Game {
     		activePlayer = activePlayer.getNextPlayer();
     	}
     }
+    public boolean allSquare(){//This returns true if all players in the hand have the same number of chips in pot or are all in
+    	boolean returnVal = true;
+    	Player firstPlayer = activePlayer;
+    	Player tempPlayer = activePlayer;
+    	while(tempPlayer.getNextPlayer() != firstPlayer && returnVal){
+    		if(tempPlayer.getChipsInPot() != chipsToCall && tempPlayer.getChips() != 0 && tempPlayer.inHand()){
+    			returnVal = false;
+    		}
+    		tempPlayer = tempPlayer.getNextPlayer();
+    	}    	
+    	return returnVal;
+    }
     public void processBotAction(String response){
     	boolean valid = false;
+//    	System.out.println("Received response: " + response);
+//    	System.out.println(activePlayer.getChips() - (chipsToCall - activePlayer.getChipsInPot()));
     	if(response.compareTo("error") == 1){
     		System.out.println("Bot returned error!");
     		System.exit(0);
     	} else {
     		
     		switch(response.substring(0,1)){
-	    	case "A":	processResponse("A");
+	    	case "A":	processResponse(response);
 	    				valid = true;
 	    				break;	
 	    	case "B": 	if (activePlayer.getChipsInPot() == chipsToCall && activePlayer.getChips() > minRaise) {// player wants to bet, verify they have sufficent funds to make min bet
@@ -449,10 +501,19 @@ public class Game {
 	    					valid = true;
 	    				}
 	    				break;		
-	    	case "C":	if (activePlayer.getChipsInPot() == chipsToCall || activePlayer.getChips() > (chipsToCall - activePlayer.getChipsInPot())){// player wants to call/check, verify they have funds to do so
-	    					processResponse("C");
-	    					valid = true;
+	    	case "C":	//bot wants to check or call  checking and calling is always acceptable for bot
+	    				processResponse(response);
+/*						if (activePlayer.getChipsInPot() == chipsToCall){//player is checking || activePlayer.getChips() >= (chipsToCall - activePlayer.getChipsInPot())){// player wants to call/check, verify they have funds to do so
+	    					processResponse(response);
+	    				} else {//bot is calling
+	    					if((activePlayer.getChips() + activePlayer.getChipsInPot()) - chipsToCall > 0){//calling not all in
+	    						processResponse(response);
+	    					} else {//bot is calling and is going all in to do so
+	    						processResponse("A");
+	    					}
 	    				}
+*/
+	    				valid = true;
 	    				break;	
 	    	case "R":	if ((activePlayer.getChips() - activePlayer.getChipsInPot()) > (chipsToCall + minRaise)){// player wants to raise, verify they have fund to do so
 	    					processResponse(response);
@@ -460,7 +521,7 @@ public class Game {
 	    				}
 	    				break;
 	    	case "F":	if (activePlayer.getChipsInPot() < chipsToCall) { // player wants to fold, verify folding is valid option
-	    					processResponse("F");
+	    					processResponse(response);
 	    					valid = true;
 	    				}
 	    				break;
@@ -477,7 +538,6 @@ public class Game {
     public void getPlayerAction() {
     	String response = "";
     	boolean valid = false;
-    	printGameState();
     	while (!valid){ // make sure we receive a valid response
 	    	if (activePlayer.getChipsInPot() == chipsToCall) { // no raise or call is required
 	    		if(activePlayer.getChips() > minRaise){// player has 3 options
@@ -562,7 +622,11 @@ public class Game {
     	}
     	if(r.equals("A")){// player is going all in
     		if(activePlayer.getChips() > 0){
-    			raise(activePlayer.getChips() - (chipsToCall - activePlayer.getChipsInPot()));
+    			if(chipsToCall - activePlayer.getChipsInPot() > activePlayer.getChips()){//calling an allin
+    				processResponse("C");
+    			} else {//this is an actual raise
+    				raise(activePlayer.getChips() - (chipsToCall - activePlayer.getChipsInPot()));
+    			}
     		}    		
     	}
     	if(r.equals("C")){// process check/call
@@ -586,18 +650,27 @@ public class Game {
 	 * Perform the flop
 	 */
 	public void flop(){
+		System.out.println();
+		System.out.println("**FLOP : " + boardCards[0].toString() + " | " + boardCards[1].toString() + "|" + boardCards[2].toString() + " **");
+		System.out.println();
 		flopFlag = true;
 	}
 	/**
 	 * Perform the turn
 	 */
 	public void turn(){
+		System.out.println();
+		System.out.println("**TURN : " + boardCards[3].toString() + " **");
+		System.out.println();
 		turnFlag = true;
 	}
 	/**
 	 * Perform the river
 	 */
 	public void river(){
+		System.out.println();
+		System.out.println("**RIVER : " + boardCards[4].toString() + " **");
+		System.out.println();
 		riverFlag = true;
 	}
 	/**
@@ -700,29 +773,73 @@ public class Game {
 	public void printGameState(){
 		Card[] humanHoleCards;
 		Card[] botHoleCards;
+		String line1, line2, line3, line4, line5;
 		
-		// display pot/blind/hand number
-		System.out.println("Hand #: " + getHands());
-		System.out.println("Blinds: " + getSmallBlind() + " / " + getBigBlind());
-		System.out.println("Pot: " + getPot());
-		
-		// display player info
 		humanHoleCards = player.getHoleCards();
 		botHoleCards = bot.getHoleCards();
-		System.out.println();
-		System.out.println(player.toString());
-		System.out.println("Chips: " + player.getChips());
-		System.out.println("Hole Cards: " + humanHoleCards[0].toString() + ", "  + humanHoleCards[1].toString());
-		System.out.println();
-		System.out.println(bot.toString());
-		System.out.println("Chips: " + bot.getChips());
-		// make sure the bots cards are visible
-		if(botRevealed){
-			System.out.println("Hole Cards: " + botHoleCards[0].toString() + ", "  + botHoleCards[1].toString());
+		
+		//setup line1
+		line1 = "*************************Hand: " + getHands() + " *************************";
+		line5 = "                     Blinds: " + getSmallBlind() + " / " + getBigBlind();
+		line5 = line5 + "       POT: " + pot;
+		//setup line2
+		line2 = "  user: ";
+		if(player.getChips() >= 1000){
+			line2 = line2 + "  ";
+		} else if(player.getChips() >= 100){
+			line2 = line2 + "   ";
 		} else {
-			System.out.println("Hole Cards: ??");
+			line2 = line2 + "   ";
 		}
-		System.out.println(flopFlag + " " + turnFlag + " " + riverFlag);
+		line2 = line2 + player.getChips() + "                          Bot:  ";
+		if(bot.getChips() >= 1000){
+			line2 = line2 + "  ";
+		} else if(bot.getChips() >= 100){
+			line2 = line2 + "   ";
+		} else {
+			line2 = line2 + "   ";
+		}
+		line2 = line2 + bot.getChips();
+		
+		//setup line3
+		line3 = " InPot: ";
+		if(player.getChipsInPot() >= 1000){
+			line3 = line3 + "  ";
+		} else if(player.getChipsInPot() >= 100){
+			line3 = line3 + "   ";
+		} else {
+			line3 = line3 + "   ";
+		}
+		line3 = line3 + player.getChipsInPot() + "                         InPot:  ";
+		if(bot.getChipsInPot() >= 1000){
+			line3 = line3 + "  ";
+		} else if(bot.getChipsInPot() >= 100){
+			line3 = line3 + "   ";
+		} else {
+			line3 = line3 + "   ";
+		}
+		line3 = line3 + bot.getChipsInPot();
+		
+		//setup line4. hole cards
+		line4 = " ";
+		line4 = line4 + humanHoleCards[0].toString() + " | " + humanHoleCards[1].toString();
+		for(int counter = line4.length(); counter < 47; counter++){
+			line4 = line4 + " ";
+		}
+		if(botRevealed){
+			line4 = line4 + botHoleCards[0].toString() + " | " + botHoleCards[1].toString();
+		} else {
+			line4 = line4 + "??";
+		}
+		
+				
+		// display pot/blind/hand number
+		System.out.println(line1);
+		System.out.println(line5);
+		System.out.println(line2);
+		System.out.println(line3);
+		System.out.println(line4);
+
 		printBoardCards();
 		
 	}
@@ -731,19 +848,23 @@ public class Game {
 	 * Prints out the currently visible board cards to the console
 	 */
 	public void printBoardCards() {
-		System.out.print("Board cards: ");
+		System.out.print(" ");
 		if (this.flopFlag) {
-			System.out.print(boardCards[0].toString() + ", ");
-			System.out.print(boardCards[1].toString() + ", ");
+			System.out.print(boardCards[0].toString() + " | ");
+			System.out.print(boardCards[1].toString() + " | ");
 			System.out.print(boardCards[2].toString());
 		}
-		if (this.riverFlag) {
-			System.out.print( ", " + boardCards[3].toString());
-		}
 		if (this.turnFlag) {
-			System.out.print(", " + boardCards[4].toString());
+			System.out.print( " | " + boardCards[3].toString());
+		}
+		if (this.riverFlag) {
+			System.out.print(" | " + boardCards[4].toString());
 		}
 		System.out.println();
+		System.out.println();
+	}
+	public int getChipsToCall(){
+		return chipsToCall;
 	}
 }
 
