@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Game {
-	private static final int STARTING_CHIPS = 1000;
 	
 	private Scanner input = new Scanner(System.in);
 	private int pot;							// current chip value in pot
@@ -32,6 +31,9 @@ public class Game {
 	private int playersInHand;					// count of players in current hand
 	private boolean botRevealed;				// flags whether bot cards revealed
 	private Deck deck = new Deck();				// deck of cards
+	private int startingChips = 1000;			//starting chips
+	private int roundsAtEachBlind = 10;			//number of rounds at each blind level
+	private int blindLevel = 0;					//current blind level
 	
 	/**
 	 * Basic constructor for Game. 
@@ -46,9 +48,10 @@ public class Game {
 		riverFlag = false;
 		botRevealed = false;
 		
+		setup();
 		
-		bot = new Bot("Bot", STARTING_CHIPS);
-		player = new Player("User", STARTING_CHIPS);
+		bot = new Bot("Bot", startingChips);
+		player = new Player("User", startingChips);
 		
 		dealer = bot;
 		
@@ -57,6 +60,97 @@ public class Game {
 		player.setNextPlayer(bot);
 	}
 	
+	public void setup(){
+		char response = '0';
+		while(response != '1'){
+			printMenuOptions();
+			response = input.next().charAt(0);
+			switch (response){
+			case '1':		//start game, no action required
+						break;
+			case '2':		promptForStartingChips();
+						break;
+			case '3':		promptForRoundsAtEachBlind();
+						break;
+			default: 	System.out.println("Invalid response. Please try again.");
+						response = input.next().charAt(0);
+			}
+			
+		}
+	}
+	private void printMenuOptions(){
+		System.out.println("****Choose option****");
+		System.out.println("(1) Start game!");
+		System.out.println("(2) Adjust starting chips. Currently: " + startingChips);
+		System.out.println("(3) Adjust number of rounds at each blind level. Currently: " + roundsAtEachBlind);
+	}
+	private void promptForRoundsAtEachBlind(){
+		int response = 0;
+		System.out.println("Enter rounds at each blind level (1 minimum): ");
+		
+		while(response < 1){
+			try{
+				response = Integer.parseInt(input.next());
+				if(response < 1){
+					System.out.println("Invalid amount. Try again.");
+				}
+			} catch(NumberFormatException ex){
+				System.out.println("Invalid amount. Try again.");
+			}
+		}
+		roundsAtEachBlind = response;
+	}
+	private void promptForStartingChips(){
+		int response = 0;
+		System.out.println("Enter starting chips (500 minimum): ");
+		while(response < 500){
+			try{
+				response = Integer.parseInt(input.next());
+				if(response < 500){
+					System.out.println("Invalid amount. Try again.");
+				}
+			} catch(NumberFormatException ex){
+				System.out.println("Invalid amount. Try again.");
+			}
+		}
+		startingChips = response;
+	}
+	private void adjustBlinds(){
+		switch(blindLevel){
+		case 0: 
+			smallBlind = 25;
+			bigBlind = 50;
+			break;
+		case 1:
+			smallBlind = 50;
+			bigBlind = 100;
+			break;
+		case 2:
+			smallBlind = 75;
+			bigBlind = 150;
+			break;
+		case 3:
+			smallBlind = 100;
+			bigBlind = 200;
+			break;
+		case 4:
+			smallBlind = 150;
+			bigBlind = 300;
+			break;
+		case 5:
+			smallBlind = 200;
+			bigBlind = 400;
+			break;
+		case 6:
+			smallBlind = 250;
+			bigBlind = 500;
+			break;
+		default:
+			smallBlind = smallBlind * 2;
+			bigBlind = bigBlind * 2;
+		}
+		System.out.println("         ***** Blinds are now " + smallBlind + " / " + bigBlind + "*****");
+	}
 	/**
 	 * This method continues to play hands of Texas Hold 'Em
 	 * until only one player has any chips or the user specifies
@@ -165,6 +259,15 @@ public class Game {
 		boardCards[2] = deck.drawCard();
 		boardCards[3] = deck.drawCard();
 		boardCards[4] = deck.drawCard();
+		
+		//increment blinds if necessary
+		if((int)(hands/roundsAtEachBlind) > blindLevel){
+//			System.out.println("hands: " + hands + "     roundsAtEachBlind: " + roundsAtEachBlind + "     blindLevel: " + blindLevel + "     (int)(hands/roundsAtEachBlind): " + (int)(hands/roundsAtEachBlind));
+			blindLevel++;
+			adjustBlinds();
+		}
+		// increment hand counter
+		hands++;
 
 		// ******************end deal cards*****************************
 		
@@ -177,8 +280,6 @@ public class Game {
 		turnFlag = false;
 		riverFlag = false;
 		botRevealed = false;
-		// increment hand counter
-		hands++;
 	}
 	
 	/**
@@ -433,6 +534,7 @@ public class Game {
      */
     public void roundOfBetting(){
     	boolean firstRound = true;
+    	minRaise = bigBlind;  //reset minRaise
     	Player lastToAct;
     	// firstRound is just a boolean variable set to make sure the loop below cycles through all players at least one time
     	// if before flop 'lastToAct will be set to big blind before flop and dealer after flop
