@@ -75,11 +75,11 @@ public class Game {
 			case '3':		promptForRoundsAtEachBlind();
 						break;
 			default: 	System.out.println("Invalid response. Please try again.");
-						response = input.next().charAt(0);
+//						response = input.next().charAt(0);
 			}
-		System.out.flush();	
+//		System.out.flush();	
 		}
-		System.out.print("\f");
+//		System.out.print("\f");
 	}
 	private void printMenuOptions(){
 		System.out.println("****Choose option****");
