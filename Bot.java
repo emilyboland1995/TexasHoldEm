@@ -31,9 +31,7 @@ public class Bot extends Player {
 		if (!game.hasFlopOccured()) { // Pre-flop
 			double relativeStrength = PreFlopHandRanker.getRelativeHandStrengthWeak(this.getHoleCards());
 			if (relativeStrength > 0.5) {
-//				if (!game.check()) {
 					return "C";
-//				}
 			} else {
 				double choice = rand.nextDouble();
 				if (choice > 0.2) {
@@ -57,9 +55,7 @@ public class Bot extends Player {
 					return "C";
 				}
 			} else if (relativeStrength < 0.8) {
-//				if (!game.check()) {
 					return "C";
-//				}
 			} else { // relativeStrength >= 0.8
 				if (this.getChips() - this.getChipsInPot() > 0) {
 					return ("R" + (this.getChips() - this.getChipsInPot()) / 2);

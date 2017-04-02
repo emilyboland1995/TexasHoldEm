@@ -19,6 +19,7 @@ public class PostFlopHandRanker {
 	private static final long TWO_PAIRS = 3;
 	private static final long PAIR = 2;
 	private static final long HIGH_CARD = 1;
+	private static final long majorFactor = Math.multiplyExact((long) 10000, 1000000);
 	
 	/**
 	 * Calculates and returns the relative strength of the best hand
@@ -35,14 +36,47 @@ public class PostFlopHandRanker {
 	/**
 	 * Calculates and returns the strength of the strongest hand possible
 	 * given the player's hole cards plus any board cards.
+	 * @param holeCards		A Card[] containing one player's hole cards
+	 * @param boardCards	A Card[] containing all visible board cards
+	 * @return				A long containing a numeric representation of this
+	 * 						hand which representing its relative strength.
+	 */
+	public static long getAbsoluteHandStrength(Card[] holeCards, Card[] boardCards) {
+		return getAbsoluteHandStrength(createHand(holeCards, boardCards));
+	}
+	
+	/**
+	 * Combines one player's hole cards and all visible board cards to create
+	 * a single Card[].
+	 * @param holeCards		A Card[] containing one player's hole cards
+	 * @param boardCards	A Card[] containing all visible board cards
+	 * @return				A Card[] containing both the hole cards and the
+	 * 						visible board cards
+	 */
+	private static Card[] createHand(Card[] holeCards, Card[] boardCards) {
+		if (holeCards.length != 2 || boardCards.length < 3 || boardCards.length > 5) {
+			throw new IllegalArgumentException("Invalid number of cards provided.");
+		}
+		Card[] hand = new Card[holeCards.length + boardCards.length];
+		hand[0] = holeCards[0];
+		hand[1] = holeCards[1];
+		
+		for (int i = 2; i < hand.length; i++) {
+			hand[i] = boardCards[i - 2];
+		}
+		
+		return hand;
+	}
+	
+	/**
+	 * Calculates and returns the strength of the strongest hand possible
+	 * given the player's hole cards plus any board cards.
 	 * @param hand		One player's hole cards plus any board cards
 	 * @return			A long containing a numeric representation of this
 	 * 					hand which representing its relative strength.
 	 */
 	public static long getAbsoluteHandStrength(Card[] hand) {
-		long handRank= 0;
-		
-		long majorFactor = Math.multiplyExact((long) 10000, 1000000);
+		long handRank = 0;
 		
 		int[] suitCounts = new int[4];
 		int[] rankCounts = new int[13];
@@ -56,7 +90,7 @@ public class PostFlopHandRanker {
 		
 		sortByRank(hand); // Sort the hand by rank
 		
-		// Count suits and ranks and find high card
+		// Count suits and ranks and finds high card
 		for (int i = 0; i < hand.length; i++) {
 			suitCounts[hand[i].getSuitInt() - 1]++;
 			
@@ -83,54 +117,18 @@ public class PostFlopHandRanker {
 			}
 		}
 		
-		// Check for flush. If present, mark suit
-		for (int i = 0; i < suitCounts.length; i++) {
-			if (suitCounts[i] == 5) {
-				containsFlush = i + 1;
-				i = suitCounts.length; // break
-			}
-		}
+		containsStraight = checkForStraight(hand);
+		containsFlush = checkForFlush(suitCounts);
 		
-		// Check for Straight while counting suits
-		// Implicitly finds the straight of the highest
-		// value
-		for (int i = 0; i <= hand.length - 4; i++) {
-			boolean straightFound = true;
-			if (i == hand.length - 4) {
-				for (int j = i + 1; j < i + 4; j++) {
-					// If the straight is broken, break
-					if (hand[j].getRankInt() - 1 != hand[j - 1].getRankInt()) {
-						straightFound = false;
-					}
-				}
-				// Check for Ace high straight
-				if (hand[hand.length - 1].getRankInt() % 13 + 1 != hand[0].getRankInt()) {
-					straightFound = false;
-				}
-			} else {
-				for (int j = i + 1; j < i + 5; j++) {
-					// If the straight is broken, break
-					if (hand[j].getRankInt() - 1 != hand[j - 1].getRankInt()) {
-						straightFound = false;
-					}
-				}
-			}
-			// If a straight is found, keep track of its location
-			if (straightFound) {
-				containsStraight = i;
-			}
-		}
-		
-		// Check for Straight Flush
+		// Check for straight flush only if one might exist
+		long straightFlushValue = -1;
 		if (containsFlush >= 0 && containsStraight >= 0) {
-			if (hand[containsStraight].getSuitInt() == containsFlush) { 
-				handRank = STRAIGHT_FLUSH * majorFactor; // Straight flush present
-				if (containsStraight == hand.length - 4) {
-					handRank += 1400000000; // Royal Flush, Ace (14) high
-				} else {
-					handRank += hand[containsStraight + 4].getRankInt() * 100000000; // Other straight flush
-				}
-			}
+			straightFlushValue = checkForStraightFlush(hand, containsFlush);
+		}
+
+		// Check for Straight Flush
+		if (containsFlush >= 0 && containsStraight >= 0 && straightFlushValue > 0) {
+			handRank = straightFlushValue; // StraightFlush Found
 		} else if (fourOfAKind >= 0) { // Check for four of a kind
 			handRank = FOUR_OF_A_KIND * majorFactor;
 			if (hand[fourOfAKind].getRankInt() == 1) { // Four Aces
@@ -241,7 +239,98 @@ public class PostFlopHandRanker {
 		
 		return handRank;
 	}
+	
+	/**
+	 * 
+	 * @param suitCounts		An int[] containing the number of
+	 * 							cards of each suit in the hand.
+	 * @return					The index of the suit that occurs
+	 * 							greater than 5 times, if present.
+	 * 							Returns -1 if no suit occurs more
+	 * 							than 5 times.
+	 */
+	public static int checkForFlush(int[] suitCounts) {
+		// Check for flush. If present, mark suit
+		for (int i = 0; i < suitCounts.length; i++) {
+			if (suitCounts[i] >= 5) {
+				return i + 1;
+			}
+		}
+		return -1;
+	}
+	
+	/**
+	 * Checks for the presence of a straight flush in the
+	 * hand provided.
+	 * @param hand		A Card[] containing all the cards in
+	 * 					the hand being examined
+	 * @return			A long containing the value of the straight
+	 * 					flush contained in the hand, if it contains
+	 * 					one. Returns -1 otherwise.
+	 */
+	public static long checkForStraightFlush(Card[] hand, int flushSuit) {
+		// Get flush cards
+		Card[] flushSuitHand = new Card[5];
+		for (int i = 0, j = 0; i < hand.length; i++) {
+			if (hand[i].getSuitInt() == flushSuit) {
+				flushSuitHand[j] = hand[i];
+			}
+		}
+		
+		int hasStraight = checkForStraight(flushSuitHand);
+		
+		if (hasStraight >= 0) { 
+			long handRank = STRAIGHT_FLUSH * majorFactor; // Straight flush present
+			if (hasStraight == hand.length - 4) {
+				handRank += 1400000000; // Royal Flush, Ace (14) high
+			} else {
+				handRank += hand[hasStraight + 4].getRankInt() * 100000000; // Other straight flush
+			}
+			return handRank;
+		}
+		return -1;
+	}
 
+	/**
+	 * Checks the hand for a straight.
+	 * @param hand		The hand being evaluated
+	 * @return			The starting index of the straight
+	 * 					if the hand contains one, -1 if it
+	 * 					doesn't.
+	 */
+	public static int checkForStraight(Card[] hand) {
+		// Check for Straight. Implicitly finds the straight of 
+		// the highest value
+		for (int i = 0; i <= hand.length - 4; i++) {
+			boolean straightFound = true;
+			if (i == hand.length - 4) {
+				for (int j = i + 1; j < i + 4; j++) {
+					// If the straight is broken, break
+					if (hand[j].getRankInt() - 1 != hand[j - 1].getRankInt()) {
+						straightFound = false;
+						break;
+					}
+				}
+				// Check for Ace high straight
+				if (hand[hand.length - 1].getRankInt() % 13 + 1 != hand[0].getRankInt()) {
+				straightFound = false;
+				}
+			} else {
+				for (int j = i + 1; j < i + 5; j++) {
+					// If the straight is broken, break
+					if (hand[j].getRankInt() - 1 != hand[j - 1].getRankInt()) {
+						straightFound = false;
+					}
+				}
+			}
+			// If a straight is found, keep track of its location
+			if (straightFound) {
+				return i;
+			}
+		}
+		return -1; // Straight not found
+	}
+	
 	/**
 	 * Sorts a given hand by the rank of the cards
 	 * @param hand		The hole cards plus any board cards
@@ -268,6 +357,5 @@ public class PostFlopHandRanker {
 				return -1;
 			}
 		}
-		
 	}
 }
