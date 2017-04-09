@@ -417,6 +417,8 @@ public class Game {
     	int maxChipsToWin = 0;
     	if(bot.inHand()){
     		if(player.inHand()){
+    			myLineList.addLine("Player's best hand: " + player.getHandString(player.getHandValue(this)));
+    			myLineList.addLine("Bot's best hand: " + bot.getHandString(bot.getHandValue(this)));
     			if(player.getHandValue(this) > bot.getHandValue(this)){ // player won
     				maxChipsToWin = player.getChipsInPot() * 2;
     				if(maxChipsToWin >= pot){//gets whole pot
