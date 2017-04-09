@@ -123,6 +123,9 @@ public class Player {
 	public long getHandValue(Game game) {
 		return PostFlopHandRanker.getAbsoluteHandStrength(getAllCards(game, this.holeCards));
 	}
+	public String getHandString(long handValue){
+		return PostFlopHandRanker.getHandStringFromRank(handValue);
+	}
 	
 	/**
 	 * Combines one player's hole Cards with any board cards to
