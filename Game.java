@@ -81,7 +81,7 @@ public class Game {
 		}
 //		System.out.print("\f");
 	}
-	private void printMenuOptions(){
+	private void printMenuOptions(){  //REQUIREMENTS TRACING: 1.3.0 User should be able to interact with the game through a simple CLI
 		System.out.println("****Choose option****");
 		System.out.println("(1) Start game!");
 		System.out.println("(2) Adjust starting chips. Currently: " + startingChips);
@@ -165,8 +165,8 @@ public class Game {
 	 * until only one player has any chips or the user specifies
 	 * that they do not want to pay anymore.
 	 */
-	public void playGame() {
-	    while (hasChips() && userWantsToContinue()) {
+	public void playGame() { //REQUIREMENTS TRACING: 1.3.0 User should be able to interact with the game through a simple CLI
+	    while (hasChips() && userWantsToContinue()) { //REQUIREMENTS TRACING: 1.3.1 Allow user to quit or reset the game at any point
 	        playHand(); // Play hand
 	    }
 	}
@@ -203,6 +203,7 @@ public class Game {
 	 * @return		True if the user wants to continue, false if otherwise
 	 */
 	public boolean userWantsToContinue() {
+		//REQUIREMENTS TRACING: 1.3.1 Allow user to quit or reset the game at any point
 		char wantsToPlay = 'a';
 	    System.out.println("CONTINUE this game? (y/n)");	   		
 	   	wantsToPlay = input.next().charAt(0); 
@@ -328,7 +329,7 @@ public class Game {
 	/**
 	 * Processes a Fold.
 	 */
-    public void fold() {
+    public void fold() {   //REQUIREMENT TRACING: 1.1.1 User should be able to fold 
     	activePlayer.setInHand(false);
     	playersInHand--;
     	if(activePlayer instanceof Bot){
@@ -349,6 +350,7 @@ public class Game {
      * 						raise amount specified).
      */
     public boolean raise(int raiseAmt) { // returns true if successful
+    ////REQUIREMENT TRACING: 1.1.2 User should be able to raise 
     	if (raiseAmt < 1) {
     		return false; // Cannot raise by zero or a negative number of chips
     	}
@@ -377,6 +379,7 @@ public class Game {
      * @return		True if it is possible to check, false if otherwise.
      */
     public boolean check(){ // returns true if check successful
+    	//REQUIREMENTS TRACING: 1.1.4 User should be able to Check when appropriate
     	if(activePlayer.getChipsInPot() == chipsToCall){ // ok to check
     		myLineList.addLine(activePlayer.toString() + " has checked");
     		return true;
@@ -391,6 +394,7 @@ public class Game {
      * adjusts the game and player states accordingly.
      */
     public void call() {
+    	//REQUIREMENT TRACING: 1.1.3 User should be able to Call when appropriate
     	int amtToCall = chipsToCall - activePlayer.getChipsInPot();
     	if(amtToCall < activePlayer.getChips()){// verify player can cover call
     		// adjust players chip count
@@ -632,6 +636,7 @@ public class Game {
 	    				}
 	    				break;
 	    	case "F":	if (activePlayer.getChipsInPot() < chipsToCall) { // player wants to fold, verify folding is valid option
+	    				////REQUIREMENT TRACING: 1.1.1 User should be able to fold 
 	    					processResponse(response);
 	    					valid = true;
 	    				}
@@ -646,7 +651,8 @@ public class Game {
     /**
      * This method prompts the player to select an appropriate action.
      */
-    public void getPlayerAction() {
+    public void getPlayerAction() {  //1.3.2 Allow user to perform all available moves through the CLI
+    	//REQUIREMENTS TRACING: 1.3.0 User should be able to interact with the game through a simple CLI
     	String response = "";
     	boolean valid = false;
     	while (!valid){ // make sure we receive a valid response
@@ -676,6 +682,7 @@ public class Game {
 	    	}
 	    	response = response.toUpperCase();
 	    	switch(response){
+	    	//REQUIREMENTS TRACING: 1.3.0 User should be able to interact with the game through a simple CLI
 	    	case "A":	valid = true;
 	    				break;	
 	    	case "B": 	if (activePlayer.getChipsInPot() == chipsToCall && activePlayer.getChips() > minRaise) {// player wants to bet, verify they have sufficent funds to make min bet
@@ -697,7 +704,7 @@ public class Game {
 	    	default:	valid = false; // Invalid user input
 	    	}
     	}
-    	processResponse(response);
+    	processResponse(response); //1.1.0 User should be able to make all available moves according to the game’s rules
     }
     
     /**
@@ -714,7 +721,9 @@ public class Game {
      * @param r		The response provided by the user
      */
     public void processResponse(String r){
-    	if(r.equals("B") || r.equals("R")){// get bet/raise amount and process
+    	if(r.equals("B") || r.equals("R")){// get bet/raise amount and process 
+    	//REQUIREMENT TRACING: 1.1.2 User should be able to raise when appropriate
+    	//REQUIREMENT TRACING: 1.1.5 User should be able to Bet when appropriate
     		boolean valid = false;
     		int amt;
     		while(!valid){
@@ -740,7 +749,9 @@ public class Game {
     			}
     		}    		
     	}
-    	if(r.equals("C")){// process check/call
+    	if(r.equals("C")){// process check/call  
+    		//REQUIREMENT TRACING: 1.1.3 User should be able to Call when appropriate
+    		//REQUIREMENTS TRACING: 1.1.4 User should be able to Check when appropriate
     		if(!check()){
     			call();
     		}
@@ -942,6 +953,7 @@ public class Game {
 		
 				
 		// display pot/blind/hand number
+		//REQUIREMENTS TRACING: 1.3.3 Provide all necessary information about the game to the user through the CLI Including the board cards, pot size.
 		System.out.println(line1);
 		System.out.println(line5);
 		System.out.println(line2);
@@ -957,6 +969,7 @@ public class Game {
 	 * Prints out the currently visible board cards to the console
 	 */
 	public void printBoardCards() {
+		////REQUIREMENTS TRACING: 1.3.3 Provide all necessary information about the game to the user through the CLI Including the board cards, pot size.
 		System.out.print(" ");
 		if (this.flopFlag) {
 			System.out.print(boardCards[0].toString() + " | ");
