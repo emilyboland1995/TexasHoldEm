@@ -9,6 +9,8 @@ import java.util.Random;
 
 
 public class Bot extends Player {
+	
+	//REQUIREMENTS TRACING: 1.2.0 A rudimentary computer opponent should be provided
 	private Random rand;
 	
 	/**
@@ -28,6 +30,9 @@ public class Bot extends Player {
 	 * @return			Returns a string containing the bot's move
 	 */
 	public String getAction(Game game) {
+		//REQUIREMENTS TRACING: 1.2.3 Provide betting strategy implementation
+        //REQUIREMENTS TRACING: 2.2.2 Bot strategy incorporates hand potential into its betting strategy
+
 		if (!game.hasFlopOccured()) { // Pre-flop
 			double relativeStrength = PreFlopHandRanker.getRelativeHandStrengthWeak(this.getHoleCards());
 			if (relativeStrength > 0.5) {
@@ -47,6 +52,7 @@ public class Bot extends Player {
 				}
 			}
 		} else {// Post-flop
+			
 			double relativeStrength = PostFlopHandRanker.getRelativeHandStrength(super.getAllCards(game, this.getHoleCards()));
 			if (relativeStrength < 0.3) {
 				if(this.getChipsInPot() < game.getChipsToCall()){

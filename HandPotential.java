@@ -10,6 +10,8 @@ import java.util.Set;
  *
  */
 public class HandPotential {
+	
+	//REQUIREMENTS TRACNG: 2.2.1 Provide hand potential calculator
 	private static final int AHEAD = 0;
 	private static final int TIED = 1;
 	private static final int BEHIND = 2;

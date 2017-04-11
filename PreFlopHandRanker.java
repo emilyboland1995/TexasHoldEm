@@ -1,6 +1,6 @@
 
 public class PreFlopHandRanker {
-	
+	//REQUIREMENTS TRACING: 1.2.2 Provide hand evaluation for pre-flop hands
 	public static double getRelativeHandStrengthWeak(Card[] holeCards) {
 		return (double) getAbsoluteHandStrengthWeak(holeCards) / 140000;
 	}

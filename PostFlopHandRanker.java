@@ -8,6 +8,7 @@
 import java.util.*;
 
 public class PostFlopHandRanker {
+	//REQUIREMENTS TRACING: 1.2.1 Provide hand evaluation for post-flop hands
 	private static String[] suits = {"Spades", "Clubs", "Hearts", "Diamonds"};
 	private static String[] ranks = {
 			"Ace", "2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King"
