@@ -13,8 +13,9 @@ import java.util.Scanner;
 
 
 public class Game {
-	
+	//REQUIREMENTS TRACING: 1.4.0 Maintain a persistent game state
 	private Scanner input = new Scanner(System.in);
+	//REQUIREMENTS TRACING: 1.4.2 Game state should hold the pot, small blind and big blind amounts, and the current board cards, along with any other relevant data not allocated to another class.
 	private int pot;							// current chip value in pot
 	private int smallBlind; 					// current small blind
 	private int bigBlind; 						// big blind value
@@ -72,7 +73,7 @@ public class Game {
 						break;
 			case '2':		promptForStartingChips();
 						break;
-			case '3':		promptForRoundsAtEachBlind();
+			case '3':		promptForRoundsAtEachBlind();   ////REQUIREMENTS TRACING: 2.1 / 2.1.2 User should be able to set the blinds
 						break;
 			default: 	System.out.println("Invalid response. Please try again.");
 //						response = input.next().charAt(0);
@@ -85,9 +86,9 @@ public class Game {
 		System.out.println("****Choose option****");
 		System.out.println("(1) Start game!");
 		System.out.println("(2) Adjust starting chips. Currently: " + startingChips);
-		System.out.println("(3) Adjust number of rounds at each blind level. Currently: " + roundsAtEachBlind);
+		System.out.println("(3) Adjust number of rounds at each blind level. Currently: " + roundsAtEachBlind);   
 	}
-	private void promptForRoundsAtEachBlind(){
+	private void promptForRoundsAtEachBlind(){  //REQUIREMENTS TRACING: 2.0 / 2.1.2 User should be able to set the blinds
 		int response = 0;
 		System.out.println("Enter rounds at each blind level (1 minimum): ");
 		
@@ -101,9 +102,10 @@ public class Game {
 				System.out.println("Invalid amount. Try again.");
 			}
 		}
-		roundsAtEachBlind = response;
+		roundsAtEachBlind = response;    
 	}
 	private void promptForStartingChips(){
+		//REQUIREMENTS TRACING: 2.0 / 2.1.1 User should be able to set the amount of starting chips for players
 		int response = 0;
 		System.out.println("Enter starting chips (500 minimum): ");
 		while(response < 500){
@@ -119,6 +121,7 @@ public class Game {
 		startingChips = response;
 	}
 	private void adjustBlinds(){
+		//REQUIREMENTS TRACING: 2.3.0 / 2.3.1 Increase blinds based on the number of hands played
 		switch(blindLevel){
 		case 0: 
 			smallBlind = 25;
@@ -166,7 +169,7 @@ public class Game {
 	 * that they do not want to pay anymore.
 	 */
 	public void playGame() { //REQUIREMENTS TRACING: 1.3.0 User should be able to interact with the game through a simple CLI
-	    while (hasChips() && userWantsToContinue()) { //REQUIREMENTS TRACING: 1.3.1 Allow user to quit or reset the game at any point
+	    while (hasChips() && userWantsToContinue()) { //REQUIREMENTS TRACING: 1.3.1 Allow user to quit or reset the game at any point, 1.4.1 Allow game state to reset at user request
 	        playHand(); // Play hand
 	    }
 	}
@@ -203,7 +206,7 @@ public class Game {
 	 * @return		True if the user wants to continue, false if otherwise
 	 */
 	public boolean userWantsToContinue() {
-		//REQUIREMENTS TRACING: 1.3.1 Allow user to quit or reset the game at any point
+		//REQUIREMENTS TRACING: 1.3.1 Allow user to quit or reset the game at any point, 1.4.1 Allow game state to reset at user request
 		char wantsToPlay = 'a';
 	    System.out.println("CONTINUE this game? (y/n)");	   		
 	   	wantsToPlay = input.next().charAt(0); 
@@ -233,6 +236,8 @@ public class Game {
 	 * 						should not be shuffled, false if otherwise.
 	 */
 	private void createHand(boolean isStacked) {
+		//REQUIREMENTS TRACING: 1.4.1 Allow game state to reset at user request
+		//REQUIREMENTS TRACING: 1.4.2 Game state should hold the pot, small blind and big blind amounts, and the current board cards, along with any other relevant data not allocated to another class.
 		if (!isStacked) {
 			deck.resetDeck(); // Verify deck is shuffled with the appropriate number of cards
 		}
