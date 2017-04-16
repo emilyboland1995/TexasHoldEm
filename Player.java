@@ -146,7 +146,7 @@ public class Player {
 		if (game.hasRiverOccured()) {
 			size++;
 		}
-		if (game.hasturnOccured()) {
+		if (game.hasTurnOccured()) {
 			size++;
 		}
 		Card[] allCards = new Card[size];

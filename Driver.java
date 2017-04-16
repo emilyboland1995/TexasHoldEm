@@ -7,18 +7,13 @@ import java.util.Scanner;
 
 public class Driver {
 	public static void main(String[] args) {
-		Game newGame = null;
-		Scanner input = new Scanner(System.in);
-		while (userWantsToPlay(input)) {
-			newGame = new Game(); // Create game
-			newGame.playGame(); // Play game
-		}
-		input.close();
+		Game newGame = new Game();
+		newGame.playGame(); // Start game
 	}
 	/**
 	 * This method prompts the user to play a new game of Texas Hold 'Em Poker
 	 * and returns a boolean indicating whether or not the user wants to play
-	 * a game.
+	 * a game. OBSOLETE
 	 * @param input		A Scanner through which to read user input
 	 * @return			True if the user wants to play a game, false
 	 * 					if the user indicated otherwise.

@@ -8,8 +8,7 @@
 import java.util.*;
 
 public class PostFlopHandRanker {
-	//REQUIREMENTS TRACING: 1.2.1 Provide hand evaluation for post-flop hands
-	private static String[] suits = {"Spades", "Clubs", "Hearts", "Diamonds"};
+	//private static String[] suits = {"Spades", "Clubs", "Hearts", "Diamonds"};
 	private static String[] ranks = {
 			"Ace", "2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King"
 	  };
@@ -107,7 +106,7 @@ public class PostFlopHandRanker {
 				break;
 			case 1: // High card only
 				hand += "High card: ";
-				hand += ranks[(typeRank - 1) % 13] + "";
+				hand += ranks[(typeRank - 1) % 13];
 				break;
 			default: 
 				return null; // Error
@@ -140,6 +139,17 @@ public class PostFlopHandRanker {
 	}
 	
 	/**
+	 * Calculates and returns the strength of the strongest hand possible
+	 * given the player's hole cards plus any board cards.
+	 * @param hand		An ArrayList<Card> containing one hand of cards
+	 * @return			A long containing a numeric representation of this
+	 * 					hand which representing its relative strength.
+	 */
+	public static long getAbsoluteHandStrength(ArrayList<Card> hand) {
+		return getAbsoluteHandStrength(createHandFromArrayList(hand));
+	}
+	
+	/**
 	 * Combines one player's hole cards and all visible board cards to create
 	 * a single Card[].
 	 * @param holeCards		A Card[] containing one player's hole cards
@@ -159,6 +169,31 @@ public class PostFlopHandRanker {
 			hand[i] = boardCards[i - 2];
 		}
 		
+		return hand;
+	}
+	/**
+	 * 
+	 * @param handList
+	 * @return
+	 */
+	private static Card[] createHandFromArrayList(ArrayList<Card> handList) {
+		int numCards = 0;
+		for (Card c : handList) {
+			if (c != null) {
+				numCards++;
+			}
+		}
+		if (numCards + 1 < 5) {
+			throw new IllegalArgumentException("Invalid number of cards found in handList");
+		}
+		Card[] hand = new Card[numCards];
+		int index = 0;
+		for (Card c : handList) {
+			if (c != null) {
+				hand[index] = c;
+				index++;
+			}
+		}
 		return hand;
 	}
 	
@@ -252,7 +287,7 @@ public class PostFlopHandRanker {
 		
 		// Get rank for three of a kind, if present
 		if (threeOfAKind >= 0) {
-			return getThreeOfAKindRank(threeOfAKind);
+			return getThreeOfAKindRank(threeOfAKind, hand);
 		}
 		
 		// Get rank for two pairs, if present
@@ -349,16 +384,20 @@ public class PostFlopHandRanker {
 		} else {
 			handRank += twoOfAKindLowRank * 1000000;
 		}
-		for (int i = hand.length - 1; i >= 0; i--) {
-			int cardRank = hand[i].getRankInt();
-			if (cardRank != twoOfAKindHighRank 
-					&& cardRank != twoOfAKindLowRank) {
-				if (cardRank == 1) {
-					handRank += 140000;
-				} else {
-					handRank += cardRank * 10000;
+		if (hand[0].getRankInt() == 1 && twoOfAKindHighRank != 1) {
+			handRank += 140000;
+		} else {
+			for (int i = hand.length - 1; i >= 0; i--) {
+				int cardRank = hand[i].getRankInt();
+				if (cardRank != twoOfAKindHighRank 
+						&& cardRank != twoOfAKindLowRank) {
+					if (cardRank == 1) {
+						handRank += 140000;
+					} else {
+						handRank += cardRank * 10000;
+					}
+					break;
 				}
-				break;
 			}
 		}
 		return handRank;
@@ -372,12 +411,32 @@ public class PostFlopHandRanker {
 	 * 							three cards of the rank specified by 
 	 * 							threeOfAKind
 	 */
-	private static long getThreeOfAKindRank(int threeOfAKind) {
+	private static long getThreeOfAKindRank(int threeOfAKind, Card[] hand) {
 		long handRank = THREE_OF_A_KIND * majorFactor;
 		if (threeOfAKind == 1) {
 			handRank += 1400000000;
 		} else {
 			handRank += threeOfAKind * 100000000;
+		}
+		int factor = 10000;
+		int cardsSelected = 0;
+		if (hand[0].getRankInt() == 1 && threeOfAKind != 1) {
+			handRank += 140000;
+			cardsSelected++;
+		} 
+		int index = hand.length - 1;
+		while (cardsSelected < 2 && index >= 0) {
+			int cardRank = hand[index].getRankInt();
+			if (cardRank != threeOfAKind) {
+				if (cardRank == 1) {
+					handRank += 14 * factor;
+				} else {
+					handRank += cardRank * factor;
+				}
+				factor /= 100;
+				cardsSelected++;
+			}
+			index--;
 		}
 		return handRank; 
 	}

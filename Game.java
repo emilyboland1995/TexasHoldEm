@@ -11,11 +11,12 @@
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import javax.swing.JOptionPane;
+
 
 public class Game {
-	//REQUIREMENTS TRACING: 1.4.0 Maintain a persistent game state
+	
 	private Scanner input = new Scanner(System.in);
-	//REQUIREMENTS TRACING: 1.4.2 Game state should hold the pot, small blind and big blind amounts, and the current board cards, along with any other relevant data not allocated to another class.
 	private int pot;							// current chip value in pot
 	private int smallBlind; 					// current small blind
 	private int bigBlind; 						// big blind value
@@ -37,6 +38,7 @@ public class Game {
 	private int roundsAtEachBlind = 10;			//number of rounds at each blind level
 	private int blindLevel = 0;					//current blind level
 	private lineList myLineList;				//contains list of lines to print
+	private GUI gui = new GUI();				//gui
 	
 	/**
 	 * Basic constructor for Game. 
@@ -62,67 +64,88 @@ public class Game {
 		bot.setNextPlayer(player);
 		player.setNextPlayer(bot);
 	}
-	
+	/**
+	 * Present user with setup menu and prompt
+	 * for a response
+	 */
 	public void setup(){
 		char response = '0';
+		String dialogResponse;
+		String mnuOptions;
 		while(response != '1'){
-			printMenuOptions();
-			response = input.next().charAt(0);
-			switch (response){
-			case '1':		//start game, no action required
-						break;
-			case '2':		promptForStartingChips();
-						break;
-			case '3':		promptForRoundsAtEachBlind();   ////REQUIREMENTS TRACING: 2.1 / 2.1.2 User should be able to set the blinds
-						break;
-			default: 	System.out.println("Invalid response. Please try again.");
-//						response = input.next().charAt(0);
+			mnuOptions = printMenuOptions();
+			dialogResponse = JOptionPane.showInputDialog(mnuOptions);
+			if(dialogResponse != null && dialogResponse.length()>0){
+				response = dialogResponse.charAt(0);
+	//			response = input.next().charAt(0);
+				switch (response){
+				case '1':		//start game, no action required
+							break;
+				case '2':		promptForStartingChips();
+							break;
+				case '3':		promptForRoundsAtEachBlind();
+							break;
+				case '4':
+							System.exit(0); // Quit game
+							break;
+				default: 	//System.out.println("Invalid response. Please try again.");
+							gui.appendTextAreaLine("Invalid response. Please try again.");
+				}
 			}
-//		System.out.flush();	
 		}
-//		System.out.print("\f");
 	}
-	private void printMenuOptions(){  //REQUIREMENTS TRACING: 1.3.0 User should be able to interact with the game through a simple CLI
-		System.out.println("****Choose option****");
-		System.out.println("(1) Start game!");
-		System.out.println("(2) Adjust starting chips. Currently: " + startingChips);
-		System.out.println("(3) Adjust number of rounds at each blind level. Currently: " + roundsAtEachBlind);   
+	/**
+	 * @return		A String containing the menu options available at the beginning of the gaem
+	 */
+	private String printMenuOptions(){
+		String msg;
+		msg = "****Choose option****\n(1) Start game!\n(2) Adjust starting chips. Currently: " + startingChips;
+		msg += "\n(3) Adjust number of rounds at each blind level. Currently: " + roundsAtEachBlind;
+		msg += "\n(4) Quit game";
+		return msg;
 	}
-	private void promptForRoundsAtEachBlind(){  //REQUIREMENTS TRACING: 2.0 / 2.1.2 User should be able to set the blinds
+	/**
+	 * Prompt the user for the blinds used for each round
+	 */
+	private void promptForRoundsAtEachBlind(){
 		int response = 0;
-		System.out.println("Enter rounds at each blind level (1 minimum): ");
+//		System.out.println("Enter rounds at each blind level (1 minimum): ");
 		
 		while(response < 1){
 			try{
-				response = Integer.parseInt(input.next());
-				if(response < 1){
-					System.out.println("Invalid amount. Try again.");
-				}
+				response = Integer.parseInt(JOptionPane.showInputDialog("Enter rounds at each blind level (1 minimum): ", roundsAtEachBlind));
+//				if(response < 1){
+//					System.out.println("Invalid amount. Try again.");
+//				}
 			} catch(NumberFormatException ex){
-				System.out.println("Invalid amount. Try again.");
+//				System.out.println("Invalid amount. Try again.");
 			}
 		}
-		roundsAtEachBlind = response;    
+		roundsAtEachBlind = response;
 	}
+	/**
+	 * Prompts user to provide the number of starting chips for the players
+	 */
 	private void promptForStartingChips(){
-		//REQUIREMENTS TRACING: 2.0 / 2.1.1 User should be able to set the amount of starting chips for players
 		int response = 0;
-		System.out.println("Enter starting chips (500 minimum): ");
+//		System.out.println("Enter starting chips (500 minimum): ");
 		while(response < 500){
 			try{
-				response = Integer.parseInt(input.next());
+				response = Integer.parseInt(JOptionPane.showInputDialog("Enter starting chips (500 minimum): ", startingChips));
 				if(response < 500){
-					System.out.println("Invalid amount. Try again.");
+//					System.out.println("Invalid amount. Try again.");
 				}
 			} catch(NumberFormatException ex){
-				System.out.println("Invalid amount. Try again.");
+//				System.out.println("Invalid amount. Try again.");
 			}
 		}
 		startingChips = response;
 	}
+	/**
+	 * Adjust blinds based on blind level
+	 */
 	private void adjustBlinds(){
-		//REQUIREMENTS TRACING: 2.3.0 / 2.3.1 Increase blinds based on the number of hands played
-		switch(blindLevel){
+		switch(blindLevel) {
 		case 0: 
 			smallBlind = 25;
 			bigBlind = 50;
@@ -155,12 +178,13 @@ public class Game {
 			smallBlind = smallBlind * 2;
 			bigBlind = bigBlind * 2;
 		}
-		System.out.println("         ***** Blinds are now " + smallBlind + " / " + bigBlind + "*****");
-		try{
-			Thread.sleep(2500);
-		} catch(Exception ex) {
-			
-		}
+		JOptionPane.showInputDialog("***** Blinds are now " + smallBlind + " / " + bigBlind + "*****");
+//		System.out.println("         ***** Blinds are now " + smallBlind + " / " + bigBlind + "*****");
+//		try{
+//			Thread.sleep(2500);
+//		} catch(Exception ex) {
+//			
+//		}
 	}
 
 	/**
@@ -168,9 +192,9 @@ public class Game {
 	 * until only one player has any chips or the user specifies
 	 * that they do not want to pay anymore.
 	 */
-	public void playGame() { //REQUIREMENTS TRACING: 1.3.0 User should be able to interact with the game through a simple CLI
-	    while (hasChips() && userWantsToContinue()) { //REQUIREMENTS TRACING: 1.3.1 Allow user to quit or reset the game at any point, 1.4.1 Allow game state to reset at user request
-	        playHand(); // Play hand
+	public void playGame() {
+	    while (hasChips() && (this.hands == 0 || userWantsToContinue())) {
+	    	playHand(); // Play hand
 	    }
 	}
 	
@@ -206,21 +230,21 @@ public class Game {
 	 * @return		True if the user wants to continue, false if otherwise
 	 */
 	public boolean userWantsToContinue() {
-		//REQUIREMENTS TRACING: 1.3.1 Allow user to quit or reset the game at any point, 1.4.1 Allow game state to reset at user request
-		char wantsToPlay = 'a';
-	    System.out.println("CONTINUE this game? (y/n)");	   		
-	   	wantsToPlay = input.next().charAt(0); 
-	    wantsToPlay = Character.toLowerCase(wantsToPlay);
-	   		  			
-	    while (wantsToPlay != 'y' && wantsToPlay != 'n') {
-	   		System.out.println("INVALID INPUT!");
-	   		System.out.println("CONTINUE this game?  (y/n)");	   		
-	   		wantsToPlay = input.next().charAt(0); 
-	   		wantsToPlay = Character.toLowerCase(wantsToPlay);
-	   	}
-	   	if (wantsToPlay=='y') {
-	   		System.out.println(); 
-	   		System.out.println("---------------------");
+		int wantsToPlay;
+//	    System.out.println("CONTINUE this game? (y/n)");	   		
+//	   	wantsToPlay = input.next().charAt(0); 
+	    wantsToPlay = JOptionPane.showConfirmDialog(null, "Continue?", "Continue",JOptionPane.YES_OPTION, JOptionPane.QUESTION_MESSAGE);
+//	    while (wantsToPlay != 'y' && wantsToPlay != 'n') {
+//	   		System.out.println("INVALID INPUT!");
+//	   		System.out.println("CONTINUE this game?  (y/n)");	   		
+//	   		wantsToPlay = input.next().charAt(0); 
+//	   		wantsToPlay = Character.toLowerCase(wantsToPlay);
+//	   	}
+	   	if (wantsToPlay == 0) {
+	   		gui.appendTextAreaLine("");
+//	   		System.out.println(); 
+	   		gui.appendTextAreaLine("---------------------");
+//	   		System.out.println("---------------------");
 	   		return true;
 	   	} else {
 	   		return false;
@@ -236,8 +260,6 @@ public class Game {
 	 * 						should not be shuffled, false if otherwise.
 	 */
 	private void createHand(boolean isStacked) {
-		//REQUIREMENTS TRACING: 1.4.1 Allow game state to reset at user request
-		//REQUIREMENTS TRACING: 1.4.2 Game state should hold the pot, small blind and big blind amounts, and the current board cards, along with any other relevant data not allocated to another class.
 		if (!isStacked) {
 			deck.resetDeck(); // Verify deck is shuffled with the appropriate number of cards
 		}
@@ -334,7 +356,7 @@ public class Game {
 	/**
 	 * Processes a Fold.
 	 */
-    public void fold() {   //REQUIREMENT TRACING: 1.1.1 User should be able to fold 
+    public void fold() {
     	activePlayer.setInHand(false);
     	playersInHand--;
     	if(activePlayer instanceof Bot){
@@ -355,7 +377,6 @@ public class Game {
      * 						raise amount specified).
      */
     public boolean raise(int raiseAmt) { // returns true if successful
-    ////REQUIREMENT TRACING: 1.1.2 User should be able to raise 
     	if (raiseAmt < 1) {
     		return false; // Cannot raise by zero or a negative number of chips
     	}
@@ -384,7 +405,6 @@ public class Game {
      * @return		True if it is possible to check, false if otherwise.
      */
     public boolean check(){ // returns true if check successful
-    	//REQUIREMENTS TRACING: 1.1.4 User should be able to Check when appropriate
     	if(activePlayer.getChipsInPot() == chipsToCall){ // ok to check
     		myLineList.addLine(activePlayer.toString() + " has checked");
     		return true;
@@ -399,7 +419,6 @@ public class Game {
      * adjusts the game and player states accordingly.
      */
     public void call() {
-    	//REQUIREMENT TRACING: 1.1.3 User should be able to Call when appropriate
     	int amtToCall = chipsToCall - activePlayer.getChipsInPot();
     	if(amtToCall < activePlayer.getChips()){// verify player can cover call
     		// adjust players chip count
@@ -575,7 +594,6 @@ public class Game {
     				printGameState();
     				//get and process response from bot class
     				response = bot.getAction(this);
-//    				System.out.println("Response from bot class: " + response);
     				processBotAction(response);
     			}
     		} else {// this is a human player
@@ -605,10 +623,9 @@ public class Game {
     }
     public void processBotAction(String response){
     	boolean valid = false;
-//    	System.out.println("Received response: " + response);
-//    	System.out.println(activePlayer.getChips() - (chipsToCall - activePlayer.getChipsInPot()));
     	if(response.compareTo("error") == 1){
-    		System.out.println("Bot returned error!");
+    		gui.appendTextAreaLine("Bot returned error!");
+//    		System.out.println("Bot returned error!");
     		System.exit(0);
     	} else {
     		
@@ -641,7 +658,6 @@ public class Game {
 	    				}
 	    				break;
 	    	case "F":	if (activePlayer.getChipsInPot() < chipsToCall) { // player wants to fold, verify folding is valid option
-	    				////REQUIREMENT TRACING: 1.1.1 User should be able to fold 
 	    					processResponse(response);
 	    					valid = true;
 	    				}
@@ -649,67 +665,74 @@ public class Game {
 	    	default:	valid = false; // Invalid user input
 	    	}
     		if(!valid){
-    			System.out.println("Received invalid response for bot action: " + response);
+    			gui.appendTextAreaLine("Received invalid response for bot action: " + response);
+//    			System.out.println("Received invalid response for bot action: " + response);
     		}
     	}
     }
     /**
      * This method prompts the player to select an appropriate action.
      */
-    public void getPlayerAction() {  //1.3.2 Allow user to perform all available moves through the CLI
-    	//REQUIREMENTS TRACING: 1.3.0 User should be able to interact with the game through a simple CLI
+    public void getPlayerAction() {
     	String response = "";
     	boolean valid = false;
     	while (!valid){ // make sure we receive a valid response
 	    	if (activePlayer.getChipsInPot() == chipsToCall) { // no raise or call is required
 	    		if(activePlayer.getChips() > minRaise){// player has 3 options
-	    			System.out.println("You can (B)et, (C)heck, or go (A)ll-in.  Enter 'B', 'C', or 'A' and hit 'Enter'");
-	    			System.out.println("Minimum Bet is: " + minRaise);
-	    			response = getInput();
+	    			response = JOptionPane.showInputDialog("You can (B)et, (C)heck, or go (A)ll-in.  Enter 'B', 'C', or 'A' and hit 'Enter'\nMinimum Bet is: " + minRaise);
+//	    			System.out.println("You can (B)et, (C)heck, or go (A)ll-in.  Enter 'B', 'C', or 'A' and hit 'Enter'");
+//	    			System.out.println("Minimum Bet is: " + minRaise);
+//	    			response = getInput();
 	    		} else { // player has 2 options
-	    			System.out.println("You can (C)heck or go (A)ll-in.  Enter 'C' or 'A' and hit 'Enter'");
-	    			response = getInput();
+	    			response = JOptionPane.showInputDialog("You can (C)heck or go (A)ll-in.  Enter 'C' or 'A' and hit 'Enter'");
+//	    			System.out.println("You can (C)heck or go (A)ll-in.  Enter 'C' or 'A' and hit 'Enter'");
+//	    			response = getInput();
 	    		}    		
 	    	} else { // player needs to call, raise, or fold
 	    		if(activePlayer.getChips() > (minRaise + chipsToCall - activePlayer.getChipsInPot())){// player has 4 options
-	    			System.out.println("You can (R)aise, (C)all, (F)old, or go (A)ll-in.  Enter 'R', 'C', 'F', or 'A' and hit 'Enter'");
-	    			System.out.println("Minimum Raise is: " + minRaise);
-	    			response = getInput();
+	    			response = JOptionPane.showInputDialog("You can (R)aise, (C)all, (F)old or go (A)ll-in.  Enter 'R', 'C', 'F', or 'A' and hit 'Enter'\nMinimum Bet is: " + minRaise);
+//	    			System.out.println("You can (R)aise, (C)all, (F)old, or go (A)ll-in.  Enter 'R', 'C', 'F', or 'A' and hit 'Enter'");
+//	    			System.out.println("Minimum Raise is: " + minRaise);
+//	    			response = getInput();
 	    		} else {
 	    			if(activePlayer.getChips() > (chipsToCall - activePlayer.getChipsInPot())){// player can cover a call, but does not have enough for the min raise
-	    				System.out.println("You can (C)all, (F)old, or go (A)ll-in.  Enter 'C', 'F', or 'A' and hit 'Enter'");
-	    				response = getInput();
+	    				response = JOptionPane.showInputDialog("You can (C)all, (F)old, or go (A)ll-in.  Enter 'C', 'F', or 'A' and hit 'Enter'");
+//	    				System.out.println("You can (C)all, (F)old, or go (A)ll-in.  Enter 'C', 'F', or 'A' and hit 'Enter'");
+//	    				response = getInput();
 	    			} else {// player will be going all in if they don't fold
-	    				System.out.println("You can (F)old or go (A)ll-in.  Enter 'F' or 'A' and hit 'Enter'");
-	    				response = getInput();
+	    				response = JOptionPane.showInputDialog("You can (F)old or go (A)ll-in.  Enter 'F' or 'A' and hit 'Enter'");
+//	    				System.out.println("You can (F)old or go (A)ll-in.  Enter 'F' or 'A' and hit 'Enter'");
+//	    				response = getInput();
 	    			}
 	    		}
 	    	}
-	    	response = response.toUpperCase();
-	    	switch(response){
-	    	//REQUIREMENTS TRACING: 1.3.0 User should be able to interact with the game through a simple CLI
-	    	case "A":	valid = true;
-	    				break;	
-	    	case "B": 	if (activePlayer.getChipsInPot() == chipsToCall && activePlayer.getChips() > minRaise) {// player wants to bet, verify they have sufficent funds to make min bet
-	    				valid = true;
-	    				}
-	    				break;		
-	    	case "C":	if(activePlayer.getChipsInPot() == chipsToCall || activePlayer.getChips() > (chipsToCall - activePlayer.getChipsInPot())){// player wants to call/check, verify they have funds to do so
-	    					valid = true;
-	    				}
-	    				break;	
-	    	case "R":	if((activePlayer.getChips() - activePlayer.getChipsInPot()) > (chipsToCall + minRaise)){// player wants to raise, verify they have fund to do so
-	    					valid = true;
-	    				}
-	    				break;
-	    	case "F":	if(activePlayer.getChipsInPot() < chipsToCall){// player wants to fold, verify folding is valid option
-	    					valid = true;
-	    				}
-	    				break;
-	    	default:	valid = false; // Invalid user input
+	    	if(response != null){
+	    		response = response.toUpperCase();
+	    	
+		    	switch(response){
+		    	case "A":	valid = true;
+		    				break;	
+		    	case "B": 	if (activePlayer.getChipsInPot() == chipsToCall && activePlayer.getChips() > minRaise) {// player wants to bet, verify they have sufficent funds to make min bet
+		    				valid = true;
+		    				}
+		    				break;		
+		    	case "C":	if(activePlayer.getChipsInPot() == chipsToCall || activePlayer.getChips() > (chipsToCall - activePlayer.getChipsInPot())){// player wants to call/check, verify they have funds to do so
+		    					valid = true;
+		    				}
+		    				break;	
+		    	case "R":	if((activePlayer.getChips() - activePlayer.getChipsInPot()) > (chipsToCall + minRaise)){// player wants to raise, verify they have fund to do so
+		    					valid = true;
+		    				}
+		    				break;
+		    	case "F":	if(activePlayer.getChipsInPot() < chipsToCall){// player wants to fold, verify folding is valid option
+		    					valid = true;
+		    				}
+		    				break;
+		    	default:	valid = false; // Invalid user input
+		    	}
 	    	}
     	}
-    	processResponse(response); //1.1.0 User should be able to make all available moves according to the game’s rules
+    	processResponse(response);
     }
     
     /**
@@ -726,14 +749,13 @@ public class Game {
      * @param r		The response provided by the user
      */
     public void processResponse(String r){
-    	if(r.equals("B") || r.equals("R")){// get bet/raise amount and process 
-    	//REQUIREMENT TRACING: 1.1.2 User should be able to raise when appropriate
-    	//REQUIREMENT TRACING: 1.1.5 User should be able to Bet when appropriate
+    	if(r.equals("B") || r.equals("R")){// get bet/raise amount and process
     		boolean valid = false;
     		int amt;
     		while(!valid){
-    			System.out.println("Enter amount to raise (" + minRaise + " - " + (activePlayer.getChips() - (chipsToCall - activePlayer.getChipsInPot()) + ")") );
-    			amt = input.nextInt();
+    			amt = Integer.parseInt(JOptionPane.showInputDialog("Enter amount to raise (" + minRaise + " - " + (activePlayer.getChips() - (chipsToCall - activePlayer.getChipsInPot()) + ")"), minRaise));
+//    			System.out.println("Enter amount to raise (" + minRaise + " - " + (activePlayer.getChips() - (chipsToCall - activePlayer.getChipsInPot()) + ")") );
+//    			amt = input.nextInt();
     			if(amt >= minRaise && amt <= (activePlayer.getChips() - (chipsToCall - activePlayer.getChipsInPot()))){
     				raise(amt);
     				valid = true;
@@ -754,9 +776,7 @@ public class Game {
     			}
     		}    		
     	}
-    	if(r.equals("C")){// process check/call  
-    		//REQUIREMENT TRACING: 1.1.3 User should be able to Call when appropriate
-    		//REQUIREMENTS TRACING: 1.1.4 User should be able to Check when appropriate
+    	if(r.equals("C")){// process check/call
     		if(!check()){
     			call();
     		}
@@ -884,24 +904,25 @@ public class Game {
 	/**
 	 * @return		True if the turn has occurred, false if otherwise.
 	 */
-	public boolean hasturnOccured() {
+	public boolean hasTurnOccured() {
 		return this.turnFlag;
 	}
-	
+
 	/**
 	 * Prints the current game state to the console.
 	 */
 	public void printGameState(){
 		Card[] humanHoleCards;
 		Card[] botHoleCards;
-		String line1, line2, line3, line4, line5;
+		String line1, line2, line3, line4, line5, line6;
 		
 		humanHoleCards = player.getHoleCards();
 		botHoleCards = bot.getHoleCards();
 		//print 50 blank lines to create illusion of blank page
-		for(int x = 0; x < 50; x++){
-			System.out.println();
-		}
+//		for(int x = 0; x < 50; x++){
+//			System.out.println();
+//		}
+		gui.clearTextArea();
 		//setup line1
 		line1 = "*************************Hand: " + getHands() + " *************************";
 		line5 = "                     Blinds: " + getSmallBlind() + " / " + getBigBlind();
@@ -956,14 +977,26 @@ public class Game {
 			line4 = line4 + "??";
 		}
 		
+		if (this.flopFlag) { // Post flop
+			line6 = "Hand Strength: " + HandStrengthCalculator.getHandStrength(player.getHoleCards(), this.getBoardCards());
+			line6 += "\nEffective Hand Strength (EHS): " 
+					+ HandStrengthCalculator.getEffectiveHandStrength(player.getHoleCards(), this.getBoardCards());
+		} else { // Pre-flop
+			line6 = "Win rate: " + PreFlopHandRanker.getHoleCardWinRate(player.getHoleCards());
+		}
 				
 		// display pot/blind/hand number
-		//REQUIREMENTS TRACING: 1.3.3 Provide all necessary information about the game to the user through the CLI Including the board cards, pot size.
-		System.out.println(line1);
-		System.out.println(line5);
-		System.out.println(line2);
-		System.out.println(line3);
-		System.out.println(line4);
+//		System.out.println(line1);
+//		System.out.println(line5);
+//		System.out.println(line2);
+//		System.out.println(line3);
+//		System.out.println(line4);
+		gui.appendTextAreaLine(line1);
+		gui.appendTextAreaLine(line5);
+		gui.appendTextAreaLine(line2);
+		gui.appendTextAreaLine(line3);
+		gui.appendTextAreaLine(line4);
+		gui.appendTextAreaLine(line6);
 
 		printBoardCards();
 		myLineList.printList();
@@ -974,26 +1007,38 @@ public class Game {
 	 * Prints out the currently visible board cards to the console
 	 */
 	public void printBoardCards() {
-		////REQUIREMENTS TRACING: 1.3.3 Provide all necessary information about the game to the user through the CLI Including the board cards, pot size.
-		System.out.print(" ");
+//		System.out.print(" ");
+		gui.appendTextArea(" ");
 		if (this.flopFlag) {
-			System.out.print(boardCards[0].toString() + " | ");
-			System.out.print(boardCards[1].toString() + " | ");
-			System.out.print(boardCards[2].toString());
+//			System.out.print(boardCards[0].toString() + " | ");
+			gui.appendTextArea(boardCards[0].toString() + " | ");
+//			System.out.print(boardCards[1].toString() + " | ");
+			gui.appendTextArea(boardCards[1].toString() + " | ");
+//			System.out.print(boardCards[2].toString());
+			gui.appendTextArea(boardCards[2].toString());
 		}
 		if (this.turnFlag) {
-			System.out.print( " | " + boardCards[3].toString());
+//			System.out.print( " | " + boardCards[3].toString());
+			gui.appendTextArea(" | " + boardCards[3].toString());
 		}
 		if (this.riverFlag) {
-			System.out.print(" | " + boardCards[4].toString());
+//			System.out.print(" | " + boardCards[4].toString());
+			gui.appendTextArea(" | " + boardCards[4].toString());
 		}
-		System.out.println();
-		System.out.println();
+//		System.out.println();
+//		System.out.println();
+		gui.appendTextAreaLine("");
+		gui.appendTextAreaLine("");
 	}
 	public int getChipsToCall(){
 		return chipsToCall;
 	}
-	class lineNode{
+	/**
+	 * 
+	 * 
+	 *
+	 */
+	private class lineNode{
 		String lineToPrint;
 		lineNode nextLine;
 		
@@ -1004,7 +1049,8 @@ public class Game {
 			this.lineToPrint = lineToPrint;
 		}
 		void printLine(){
-			System.out.println(lineToPrint);
+			gui.appendTextAreaLine(lineToPrint);
+//			System.out.println(lineToPrint);
 		}
 		void setNext(lineNode nextLine){
 			this.nextLine = nextLine;
@@ -1013,7 +1059,13 @@ public class Game {
 			return nextLine;
 		}
 	}
-	class lineList{
+	/**
+	 * 
+	 * A linked list designed to hold lines of text
+	 * to print out to a CLI.
+	 *
+	 */
+	private class lineList{
 		lineNode head = new lineNode();
 		lineNode pointer;
 		int linesAdded;
@@ -1034,7 +1086,8 @@ public class Game {
 		void printList(){
 			pointer = head;
 			pointer.printLine();
-			System.out.println();
+			gui.appendTextAreaLine("");
+//			System.out.println();
 			while(pointer.getNext() != null){
 				pointer = pointer.getNext();
 				pointer.printLine();
@@ -1042,11 +1095,14 @@ public class Game {
 			//add buffer lines if necessary
 			if(linesAdded < LinesForDisplay){
 				for(int x = linesAdded; x< LinesForDisplay; x++){
-					System.out.println();
+//					System.out.println();
+					gui.appendTextAreaLine("");
 				}
 			}
-			System.out.println("-----------------------------------------------------------");
-			System.out.println();
+//			System.out.println("-----------------------------------------------------------");
+//			System.out.println();
+			gui.appendTextAreaLine("-----------------------------------------------------------");
+			gui.appendTextArea("");
 		}
 		
 	}
