@@ -9,15 +9,7 @@ import java.util.Random;
 
 
 public class Bot extends Player {
-	private int strategy;
-	//private static boolean semiBluff;
-	
-	// Constants for different actions
-	private static final int RAISE = 0;
-	private static final int CALL = 1;
-	private static final int CHECK = 2;
-	private static final int BET = 3;
-	private static final int FOLD = 4;
+	private int strategy; // An indicator of the bot's confidence
 	
 	// Indicates bot's confidence in its starting hand
 	private static final int STRONG = 0;
@@ -26,7 +18,6 @@ public class Bot extends Player {
 	private static final int WEAK = 3;
 	
 	private static double[] preFlopThresholds = {0.3, 0.5, 0.8};
-	//private static double[] postFlopThresholds = {0.2, 0.5, 0.8};
 	private Random rand;
 	
 	/**
@@ -96,92 +87,92 @@ public class Bot extends Player {
 	 * @return			A String containing the move selected by
 	 * 					this instance of Bot
 	 */
-	public String getAction(Game state) {
+	public BotMove getAction(Game state) {
 		double choice = rand.nextDouble();
 		if (state.hasFlopOccured()) {
 			if (state.hasRiverOccured()) { // Final round of betting
-				double handStrength = HandStrengthCalculator.getHandStrength(this.getHoleCards(), state.getBoardCards());
+				double handStrength = HandStrengthCalculator.getHandStrength(this.getHoleCards(), state.getVisibleBoardCards());
 				double potOdds = state.getChipsToCall() / (state.getPot() + state.getChipsToCall());
 				if (handStrength >= potOdds) { // We are more likely to make a profit than not
 					if (choice <= 0.50) {
 						if (this.getChips() - this.getChipsInPot() > 0) {
-							return ("R" + (int) (this.getChips() - this.getChipsInPot()) * handStrength);
+							return new BotMove(Game.Move.RAISE, (int) ((this.getChips() - this.getChipsInPot()) * handStrength));
 						} else {
-							return "C";
+							return new BotMove(Game.Move.CALL);
 						}
 					} else {
-						return "C";
+						return new BotMove(Game.Move.CALL);
 					}
 				} else { // Pot odds do not favor the bot
 					if (choice <= 0.25) { // Bluff occasionally, if possible
 						if (this.getChips() - this.getChipsInPot() > 0) {
-							return ("R" + (int) (this.getChips() - this.getChipsInPot()) * handStrength);
+							return new BotMove(Game.Move.RAISE, (int) ((this.getChips() - this.getChipsInPot()) * handStrength));
 						} else {
-							return "C";
+							return new BotMove(Game.Move.CALL);
 						}
 					} else { // Call 
-						return "C";
+						return new BotMove(Game.Move.CALL);
 					}
 				}
 			} else if (state.hasTurnOccured()) { // On the turn
-				HandPotential potentials = new HandPotential(this.getHoleCards(), state.getBoardCards());
+				HandPotential potentials = new HandPotential(this.getHoleCards(), state.getVisibleBoardCards());
 				double potOdds = state.getChipsToCall() / (state.getPot() + state.getChipsToCall());
 				if (potentials.getPositivePotential() >= potOdds) { // We are more likely to make a profit than not
 					if (choice <= 0.40) {
 						if (this.getChips() - this.getChipsInPot() > 0) {
-							return ("R" + (int) (this.getChips() - this.getChipsInPot()) * potentials.getPositivePotential());
+							return new BotMove(Game.Move.RAISE, (int) ((this.getChips() - this.getChipsInPot()) * potentials.getPositivePotential()));
 						} else {
-							return "C";
+							return new BotMove(Game.Move.CALL);
 						}
 					} else {
-						return "C";
+						return new BotMove(Game.Move.CALL);
 					}
 				} else { // Pot odds do not favor the bot
 					if (choice <= 0.15) { // Bluff occasionally, if possible
 						if (this.getChips() - this.getChipsInPot() > 0) {
-							return ("R" + (int) (this.getChips() - this.getChipsInPot()) * potentials.getPositivePotential());
+							return new BotMove(Game.Move.RAISE, (int) ((this.getChips() - this.getChipsInPot()) * potentials.getPositivePotential()));
 						} else {
-							return "C";
+							return new BotMove(Game.Move.CALL);
 						}
 					} else { // Call 
-						return "C";
+						return new BotMove(Game.Move.CALL);
 					}
 				}
 			} else { // On the flop
-				HandPotential potentials = new HandPotential(this.getHoleCards(), state.getBoardCards());
+				HandPotential potentials = new HandPotential(this.getHoleCards(), state.getVisibleBoardCards());
 				double EHSOptimistic = HandStrengthCalculator.getEffectiveHandStrengthOptimistic(this.getHoleCards(), 
-						state.getBoardCards(), potentials);
+						state.getVisibleBoardCards(), potentials);
 				if (EHSOptimistic >= 0.75) {
 					if (choice <= 0.75) {
 						if (this.getChips() - this.getChipsInPot() > 0) {
-							return ("R" + (int) (this.getChips() - this.getChipsInPot()) * potentials.getPositivePotential());
+							return new BotMove(Game.Move.RAISE, (int) ((this.getChips() - this.getChipsInPot()) * potentials.getPositivePotential()));
 						} else {
-							return "C";
+							return new BotMove(Game.Move.CALL);
 						}
 					} else {
-						return "C";
+						return new BotMove(Game.Move.CALL);
 					}
 				} else if (EHSOptimistic >= 0.5) {
 					if (choice <= 0.5) {
 						if (this.getChips() - this.getChipsInPot() > 0) {
-							return ("R" + (int) (this.getChips() - this.getChipsInPot()) * potentials.getPositivePotential());
+							return new BotMove(Game.Move.RAISE, (int) ((this.getChips() - this.getChipsInPot()) * potentials.getPositivePotential()));
 						} else {
-							return "C";
+							return new BotMove(Game.Move.CALL);
 						}
 					} else {
-						return "C";
+						return new BotMove(Game.Move.CALL);
 					}
 				} else {
 					if (choice <= 0.3) {
 						if (this.getChips() - this.getChipsInPot() > 0) {
-							return ("R" + (int) (this.getChips() - this.getChipsInPot()) * potentials.getPositivePotential());
+							return new BotMove(Game.Move.RAISE, (int) ((this.getChips() - this.getChipsInPot()) * potentials.getPositivePotential()));
 						} else {
-							return "C";
+							return new BotMove(Game.Move.CALL);
 						}
 					} else if (choice <= 0.7){
-						return "C";
+						return new BotMove(Game.Move.CALL);
 					} else {
-						return "F";
+						return new BotMove(Game.Move.FOLD);
 					}
 				}
 			}
@@ -191,35 +182,35 @@ public class Bot extends Player {
 				case STRONG: // Strong hand, bet often
 					if (choice <= 0.85) { // Bet
 						if (this.getChips() - this.getChipsInPot() > 0) {
-							return ("R" + (int) (this.getChips() - this.getChipsInPot()) * (choice + 0.15));
+							return new BotMove(Game.Move.RAISE, (int) ((this.getChips() - this.getChipsInPot()) * choice + 0.15));
 						} else {
-							return "C";
+							return new BotMove(Game.Move.CALL);
 						}
-					} else { // Call/Check rarely
-						return "C";
+					} else { 
+						return new BotMove(Game.Move.CALL);
 					}
 				case MID: // Moderately strong hand, bet less often, call otherwise
 					if (choice <= 0.65) { // Bet
 						// Bet more conservatively than with STRONG hand
 						if (this.getChips() - this.getChipsInPot() > 0) {
-							return ("R" + (int) (this.getChips() - this.getChipsInPot()) * (choice + 0.05));
+							return new BotMove(Game.Move.RAISE, (int) ((this.getChips() - this.getChipsInPot()) * choice + 0.05));
 						} else {
-							return "C";
+							return new BotMove(Game.Move.CALL);
 						}
-					} else { // Call/Check rarely
-						return "C";
+					} else {
+						return new BotMove(Game.Move.CALL);
 					}
 				case LOW: // Call moderately often, fold otherwise
-					if (choice <= 0.7) { // Bet
-						return "C";
-					} else { // Call/Check rarely
-						return "F";
+					if (choice <= 0.7) {
+						return new BotMove(Game.Move.CALL);
+					} else {
+						return new BotMove(Game.Move.FOLD);
 					}
 				default: // Fold often, hand is weak
 					if (choice <= .8) { // Fold often
-						return "F"; // Fold
+						return new BotMove(Game.Move.FOLD); // Fold
 					} else { // Occasionally, play the hand
-						return "C"; // Call/Check
+						return new BotMove(Game.Move.CALL); // Call/Check
 					}
 			}
 		}

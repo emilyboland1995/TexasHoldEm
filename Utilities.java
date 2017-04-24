@@ -3,6 +3,8 @@
  * classes.
  */
 
+import java.awt.Image;
+import java.awt.Toolkit;
 import java.util.Scanner;
 import java.util.Set;
 
@@ -68,5 +70,21 @@ public class Utilities {
 		for (T value : data) {
 			set.remove(value);
 		}
+	}
+	
+	/**
+	 * Takes a single Card and returns the file path to the image
+	 * representing that card
+	 * @param c		The Card whose image path will be searched for
+	 * @return		A Image containing the image representing the
+	 * 				Card passed.
+	 */
+	public static Image getCardFilePath(Card c) {
+		if (c == null) { // Assume back of card
+			return Toolkit.getDefaultToolkit().getImage((Utilities.class.getResource("CardPics/custom_back.jpg")));
+		}
+		String s = c.toString().toLowerCase() + ".png";
+		s.replaceAll("\\w", "_");
+		return Toolkit.getDefaultToolkit().getImage((Utilities.class.getResource("CardPics/" + s.replaceAll("[ ]", "_"))));
 	}
 }

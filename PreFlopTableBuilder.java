@@ -4,21 +4,10 @@ public class PreFlopTableBuilder {
 	private static final int NUM_GAMES = 1000000;
 	
 	public static void main(String[] args) {
-		
-		/*Deck d = new Deck();
-		double rank = 0;
-		Card[] holeCards = new Card[2];
-		while (true) {
-			holeCards[0] = d.drawCard();
-			holeCards[1] = d.drawCard();
-			rank = PreFlopHandRanker.getRelativeHandStrengthWeak(holeCards);
-			System.out.println(holeCards[0].toString() + ", " + holeCards[1].toString() + ", Rank: " + rank);
-			d.resetDeck();
-		}*/
-		print2DArray(getPreFlopHandRankings());
+		print2DArrayToFile(getPreFlopHandRankings());
 		
 	}
-	public static void print2DArray(double[][] arr) {
+	public static void print2DArrayToFile(double[][] arr) {
 		try (Writer writer = new BufferedWriter(new OutputStreamWriter(
 	              new FileOutputStream("PreFlopTable.dat"), "utf-8"))) {
 			for (int i = 0; i < arr.length; i++) {

@@ -2,9 +2,11 @@
  * 
  */
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Deck {
@@ -107,8 +109,8 @@ public class Deck {
 	  public void resetDeck() {
 		  deckIndex = 0;
 		  this.shuffleDeck();
-		  //this.stackDeck();
-		  //System.out.println("*****Deck has been stacked, comment out lines 98-99 in deck class to remove deck stacking******");
+//		  this.stackDeck();
+//		  System.out.println("*****Deck has been stacked, comment out lines 98-99 in deck class to remove deck stacking******");
 	  }
 	  
 	  /**
@@ -179,4 +181,18 @@ public class Deck {
 			  }
 		  };
 	  }
+	
+	/**
+	 * Builds and returns HashSet containing all
+	 * 52 possible cards
+	 * @return		A HashSet<Card> containing all
+	 * 				52 possible cards
+	 */
+	public Set<Card> getDeckAsSet() {
+		Set<Card> set = new HashSet<Card>();
+		for (Card c : deckOfCards) {
+			set.add(c);
+		}
+		return set;
+	}
 }

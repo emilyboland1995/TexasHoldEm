@@ -75,6 +75,38 @@ public class PostFlopHandRankerTest {
 		testTwoPairs();
 		testPair();
 		testHighCard();
+		//testEqualsStrength();
+	}
+	
+	private void testEqualsStrength() {
+		Deck d = new Deck();
+		Card[] holeCards1 = new Card[2];
+		Card[] holeCards2 = new Card[2];
+		Card[] boardCards = new Card[3];
+		while (true) {
+			for (int i = 0; i < 2; i++) {
+				holeCards1[i] = d.drawCard();
+				holeCards2[i] = d.drawCard();
+			}
+			d.resetDeck();
+			for (int i = 0; i < 3; i++) {
+				boardCards[i] = d.drawCard();
+			}
+			long rank1 = PostFlopHandRanker.getAbsoluteHandStrength(holeCards1, boardCards);
+			long rank2 = PostFlopHandRanker.getAbsoluteHandStrength(holeCards2, boardCards);
+			
+			
+			if (rank1 == rank2) {
+				System.out.println(rank1 + " " + rank2);
+				System.out.println(holeCards1[0].toString() + " " + holeCards1[1].toString());
+				System.out.println(holeCards2[0].toString() + " " + holeCards2[1].toString());
+				for (int i = 0; i < 3; i++) {
+					System.out.print(boardCards[i] + " ");
+				}
+				System.out.println();
+			}
+			d.resetDeck();
+		}
 	}
 	
 	// Test case #1
@@ -123,10 +155,13 @@ public class PostFlopHandRankerTest {
 		
 			long rank5 = PostFlopHandRanker.getAbsoluteHandStrength(h5);
 			System.out.println(rank5);
+			System.out.println(PostFlopHandRanker.getHandStringFromRank(rank5));
 			long rank6 = PostFlopHandRanker.getAbsoluteHandStrength(h6);
 			System.out.println(rank6);
+			System.out.println(PostFlopHandRanker.getHandStringFromRank(rank6));
 			long rank7 = PostFlopHandRanker.getAbsoluteHandStrength(h7);
 			System.out.println(rank7);
+			System.out.println(PostFlopHandRanker.getHandStringFromRank(rank7));
 			
 			assertTrue(true);
 		} catch(Exception e) {
