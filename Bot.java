@@ -32,55 +32,6 @@ public class Bot extends Player {
 	}
 	
 	/**
-	 * Prompts the Bot to make a move. Currently obsolete
-	 * @param game		The current Game object containing all
-	 * 					the current game info.
-	 * @return			Returns a string containing the bot's move
-	 */
-	public String getActionOLD(Game game) {
-		if (!game.hasFlopOccured()) { // Pre-flop
-			double relativeStrength = PreFlopHandRanker.getHoleCardWinRate(this.getHoleCards());
-			if (relativeStrength > 0.5) {
-					return "C";
-			} else {
-				double choice = rand.nextDouble();
-				if (choice > 0.2) {
-					if (!game.check()) {
-						return "C";
-					}
-				} else {
-					if(this.getChipsInPot() < game.getChipsToCall()){
-						return "F";
-					} else {//folding not required, can simply check
-						return "C";
-					}
-				}
-			}
-		} else {// Post-flop
-			double relativeStrength = PostFlopHandRanker.getRelativeHandStrength(super.getAllCards(game, this.getHoleCards()));
-			if (relativeStrength < 0.3) {
-				if(this.getChipsInPot() < game.getChipsToCall()){
-					return "F";
-				} else {//folding not required, can simply check
-					return "C";
-				}
-			} else if (relativeStrength < 0.8) {
-					return "C";
-			} else { // relativeStrength >= 0.8
-				if (this.getChips() - this.getChipsInPot() > 0) {
-					return ("R" + (this.getChips() - this.getChipsInPot()) / 2);
-				} else {
-					if (!game.check()) {
-						return "C";
-					} else {
-						return "C";
-					}
-				}
-			}
-		}
-		return "error";
-	}
-	/**
 	 * Examines Bot's current hole cards and the state of the
 	 * game and selects an appropriate strategy.
 	 * @param state		The Game object currently in use
@@ -176,13 +127,13 @@ public class Bot extends Player {
 					}
 				}
 			}
-		} else { // Pre-flop
+		} else { // Pre-flop strategy. Never fold pre-flop
 			evaluatePreFlopStrength();
 			switch (this.strategy) {
 				case STRONG: // Strong hand, bet often
 					if (choice <= 0.85) { // Bet
 						if (this.getChips() - this.getChipsInPot() > 0) {
-							return new BotMove(Game.Move.RAISE, (int) ((this.getChips() - this.getChipsInPot()) * choice + 0.15));
+							return new BotMove(Game.Move.RAISE, (int) ((this.getChips() - this.getChipsInPot()) * (choice % 0.20)));
 						} else {
 							return new BotMove(Game.Move.CALL);
 						}
@@ -193,25 +144,21 @@ public class Bot extends Player {
 					if (choice <= 0.65) { // Bet
 						// Bet more conservatively than with STRONG hand
 						if (this.getChips() - this.getChipsInPot() > 0) {
-							return new BotMove(Game.Move.RAISE, (int) ((this.getChips() - this.getChipsInPot()) * choice + 0.05));
+							return new BotMove(Game.Move.RAISE, (int) ((this.getChips() - this.getChipsInPot()) * (choice % 0.05)));
 						} else {
 							return new BotMove(Game.Move.CALL);
 						}
 					} else {
 						return new BotMove(Game.Move.CALL);
 					}
-				case LOW: // Call moderately often, fold otherwise
-					if (choice <= 0.7) {
+				case LOW: // Call moderately often, occasionally bluff
+					if (choice <= 0.90) {
 						return new BotMove(Game.Move.CALL);
 					} else {
-						return new BotMove(Game.Move.FOLD);
+						return new BotMove(Game.Move.RAISE, (int) ((this.getChips() - this.getChipsInPot()) * (choice % 0.02)));
 					}
 				default: // Fold often, hand is weak
-					if (choice <= .8) { // Fold often
-						return new BotMove(Game.Move.FOLD); // Fold
-					} else { // Occasionally, play the hand
-						return new BotMove(Game.Move.CALL); // Call/Check
-					}
+					return new BotMove(Game.Move.CALL); // Call/Check
 			}
 		}
 	}

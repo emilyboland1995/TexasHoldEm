@@ -1,3 +1,10 @@
+/**
+ * This class defines the Graphical User Interface (GUI) for 
+ * the game. At this stage, it is designed for simplicity. It
+ * works with the Game class to handle user input and display
+ * appropriate information.
+ */
+
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -7,7 +14,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JPanel;
 import javax.swing.border.LineBorder;
-
 import java.awt.Image;
 import java.awt.event.*;
 import java.awt.Color;
@@ -17,11 +23,12 @@ import java.util.ArrayList;
 import javax.swing.SwingConstants;
 
 public class GUI {
+	private static String[] startMenuOptions = {"Start Game", "Set Starting Chips", "Adjust Rounds Per Blind Level", "Quit Game"};
+
 	private static final int cardHeight = 120;
 	private static final int cardWidth = 98;
 	
 	private JFrame frmTexasHoldem;
-	private JTextArea textArea;
 	
 	private JLabel[] boardCardImages = new JLabel[5];
 	private JLabel[] playerHoleCardImages = new JLabel[2];
@@ -41,15 +48,19 @@ public class GUI {
 	private JButton btnCheck;
 	private JButton btnAllIn;
 	private JButton btnBet;
-	private JScrollPane scrollPane;
 	
-	private Game.Move userMove = Game.Move.NOMOVE;
+	private JScrollPane scrollPane; 	// Text area for game updates
+	private JTextArea textArea;
+	
+	private Game.Move userMove = Game.Move.NOMOVE; // Player move tracker
 	
 	private Game game;
 
 	/**
 	 * Create the application.
-	 * @param game 
+	 * @param game 		The instance of Game
+	 * 					this GUI will be tied
+	 * 					to
 	 */
 	public GUI(Game game) {
 		this.game = game;
@@ -70,7 +81,7 @@ public class GUI {
 		frmTexasHoldem.setResizable(false);
 		frmTexasHoldem.getContentPane().setFont(new Font("Tahoma", Font.PLAIN, 11));
 		frmTexasHoldem.setTitle("Texas Hold 'Em");
-		frmTexasHoldem.setBounds(100, 100, 800, 800);
+		frmTexasHoldem.setBounds(100, 100, 800, 710);
 		frmTexasHoldem.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmTexasHoldem.getContentPane().setLayout(null);
 		
@@ -253,7 +264,7 @@ public class GUI {
 		btnCheck.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		btnCheck.setBounds(530, 620, 100, 30);
 		frmTexasHoldem.getContentPane().add(btnCheck);
-
+		
 		btnAllIn = new JButton("All In");
 		btnAllIn.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		btnAllIn.setBounds(645, 620, 100, 30);
@@ -285,25 +296,24 @@ public class GUI {
 				hasCheck();
 			}
 		});
-		btnAllIn.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				hasAllIn();
-			}
-		});
 		btnCall.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				hasCalled();
 			}
 		});
 		
+		btnAllIn.addActionListener(new ActionListener() {
+			 public void actionPerformed(ActionEvent e) {
+				 hasAllIn();
+			 }
+		});
+		
 		disableMoveButtons();
 		
 		btnExit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int wantsToQuit = JOptionPane.showConfirmDialog(null, "Are you sure you want to quit?", "Continue", 
-						JOptionPane.YES_OPTION, JOptionPane.QUESTION_MESSAGE);
-				if (wantsToQuit == 0) {
-					System.exit(0); // Quit game
+				if (confirmQuit()) { // If user wants to quit
+					System.exit(0); 
 				}
 			}
 		});
@@ -311,6 +321,11 @@ public class GUI {
 		// Setup initial view
 		setInitialView();
 	}
+	public boolean confirmQuit() {
+		return JOptionPane.showConfirmDialog(null, "Are you sure you want to quit?", "Continue", 
+				JOptionPane.YES_OPTION, JOptionPane.QUESTION_MESSAGE) == 0;
+	}
+	
 	private void disableMoveButtons() {
 		btnFold.setEnabled(false);
 		btnCall.setEnabled(false);
@@ -329,22 +344,6 @@ public class GUI {
 		btnAllIn.setEnabled(true);
 	}
 	
-	public void disableFold(){
-		btnFold.setEnabled(false);
-	}
-	public void disableCall() {
-		btnCall.setEnabled(false);
-	}
-	public void disableCheck() {
-		btnCheck.setEnabled(false);
-	}
-	public void disableBet() {
-		btnBet.setEnabled(false);
-	}
-	public void disableRaise() {
-		btnRaise.setEnabled(false);
-	}
-	
 	public Game.Move getUserMove() {
 		while (this.userMove.equals(Game.Move.NOMOVE)) {
 			System.out.println("");
@@ -354,6 +353,30 @@ public class GUI {
 		disableMoveButtons();
 		System.out.println("Waiting...");
 		return moveMade;
+	}
+	
+	public void disableFold() {
+		btnFold.setEnabled(false);
+	}
+	
+	public void disableCall() {
+		btnCall.setEnabled(false);
+	}
+	
+	public void disableCheck() {
+		btnCheck.setEnabled(false);
+	}
+	
+	public void disableBet() {
+		btnBet.setEnabled(false);
+	}
+	
+	public void disableRaise() {
+		btnRaise.setEnabled(true);
+	}
+	
+	public void disableAllIn() {
+		btnAllIn.setEnabled(false);
 	}
 	
 	private void hasCalled() {
@@ -368,11 +391,12 @@ public class GUI {
 	private void hasCheck() {
 		this.userMove = Game.Move.CHECK;
 	}
-	private void hasAllIn(){
-		this.userMove = Game.Move.ALLIN;
-	}
 	private void hasRaise(){
 		this.userMove = Game.Move.RAISE;
+	}
+	
+	private void hasAllIn(){
+		this.userMove = Game.Move.ALLIN;
 	}
 	
 	public Game.Move getLastMove() {
@@ -475,13 +499,13 @@ public class GUI {
 	
 	public void updateChipsToCall() {
 		int chips_to_call;
-		if(this.game.getChipsToCall() > this.game.getPlayerChipsInPot()){
-			chips_to_call = this.game.getChipsToCall() - this.game.getPlayerChipsInPot();
-		} else {
-			chips_to_call = 0;
-		}
-		this.chipsToCall.setText("Chips to Call: " + chips_to_call);
-		btnCall.setText("Call (" + chips_to_call + ")");
+		 if(this.game.getChipsToCall() > this.game.getPlayerChipsInPot()){
+			 chips_to_call = this.game.getChipsToCall() - this.game.getPlayerChipsInPot();
+		 } else {
+			 chips_to_call = 0;
+		 }
+		 this.chipsToCall.setText("Chips to Call: " + chips_to_call);
+		 btnCall.setText("Call (" + chips_to_call + ")");
 	}
 	
 	public void updatePlayerChips() {
@@ -529,5 +553,12 @@ public class GUI {
 		textArea.selectAll();
 		 x = textArea.getSelectionEnd();
 		 textArea.select(x,x);
+	}
+	
+	public int displayStartMenu() {
+		int selectedOption = 0;
+		selectedOption = JOptionPane.showOptionDialog(frmTexasHoldem, "Please Select One of the Following Options:", 
+				"Start Menu", JOptionPane.YES_NO_OPTION, JOptionPane.DEFAULT_OPTION, null, startMenuOptions, null);
+		return selectedOption;
 	}
 }

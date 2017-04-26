@@ -63,48 +63,44 @@ public class Game {
 		// Setup initial board cards
 		gui.updateBoardCards();
 		
-		setup();
+		displayStartMenu();
 	}
 	/**
-	 * Present user with setup menu and prompt
-	 * for a response
+	 * Displays a start menu for the user which prompts the user to
+	 * select from one of four options: Start game, set starting chips,
+	 * set rounds for each blind, and quit. If the user simply closes
+	 * the menu without selecting an option, the start menu will be
+	 * displayed again, forcing the user to either fully exit the game
+	 * or make a valid selection.
 	 */
-	private void setup() {
-		char response = '0';
-		String dialogResponse;
-		String mnuOptions;
-		while(response != '1') {
-			mnuOptions = printMenuOptions();
-			dialogResponse = JOptionPane.showInputDialog(mnuOptions);
-			if (dialogResponse != null && dialogResponse.length()>0) {
-				response = dialogResponse.charAt(0);
-
-				switch (response) {
-					case '1':		
-								break;
-					case '2':	promptForStartingChips();
-								break;
-					case '3':	promptForRoundsAtEachBlind();
-								break;
-					case '4':
+	private void displayStartMenu() {
+		boolean moveMade = false;
+		int selectedOption = 0;
+		while (!moveMade) {
+			selectedOption = gui.displayStartMenu(); // Display start menu and store user selection
+			moveMade = selectedOption >= 0; // Set moveMade to true only if the user made a valid selection
+			switch (selectedOption) {
+				case 0:		// Start game
+							break;
+				case 1:		// Set starting chips
+							promptForStartingChips();
+							break;
+				case 2:		// Set rounds for each blind level
+							promptForRoundsAtEachBlind();
+							break;
+				case 3:		// Quit game
+							if (gui.confirmQuit()) {
 								System.exit(0); // Quit game
-								break;
-					default: 	
-								gui.appendTextAreaLine("Invalid response. Please try again.");
-				}
+							} else {
+								moveMade = false; // User decided not to quit, display start menu again
+							}
+							break;
+				default: 	
+							gui.appendTextAreaLine("Invalid response. Please try again.");
 			}
 		}
 	}
-	/**
-	 * @return		A String containing the menu options available at the beginning of the gaem
-	 */
-	private String printMenuOptions() {
-		String msg;
-		msg = "****Choose option****\n(1) Start game!\n(2) Adjust starting chips. Currently: " + startingChips;
-		msg += "\n(3) Adjust number of rounds at each blind level. Currently: " + roundsAtEachBlind;
-		msg += "\n(4) Quit game";
-		return msg;
-	}
+	
 	/**
 	 * Prompt the user for the blinds used for each round
 	 */
@@ -274,12 +270,10 @@ public class Game {
 		boardCards[4] = deck.drawCard();
 		
 		//increment blinds if necessary
-		if ((int)(hands / roundsAtEachBlind) > blindLevel) {
+		if ((int) (hands / roundsAtEachBlind) > blindLevel) {
 			blindLevel++;
 			adjustBlinds();
 		}
-		// increment hand counter
-		hands++;
 
 		// ******************end deal cards*****************************
 		
@@ -548,6 +542,8 @@ public class Game {
     	
     	// advance dealer and keep going
     	dealer = dealer.getNextPlayer();
+    	// increment hand counter
+    	hands++;
     }
     /**
      * Displays information about the player's current 
@@ -679,46 +675,44 @@ public class Game {
      * This method prompts the player to select an appropriate action.
      */
     private void getPlayerAction() {
-    	gui.updateView();
     	gui.promptUser();
     	boolean moveMade = false;
     	boolean valid = false;
-    	//*******************
+    	
     	gui.enableMoveButtons();
     	gui.updateView();
     	if (activePlayer.getChipsInPot() == chipsToCall) { // no raise or call is required
-    		if(activePlayer.getChips() > minRaise){// player has 3 options
-    			gui.disableRaise();
-    			gui.disableCall();
-    			gui.disableFold();
-    		} else { // player has 2 options
-    			gui.disableRaise();
-    			gui.disableCall();
-    			gui.disableFold();
-    			gui.disableCheck();
-    		}    		
+	    	if(activePlayer.getChips() > minRaise) { // player has 3 options
+	    	     gui.disableRaise();
+	    	     gui.disableCall();
+	    	     gui.disableFold();
+	    	} else { // player has 2 options
+	    	     gui.disableRaise();
+	    	     gui.disableCall();
+	    	     gui.disableFold();
+	    	     gui.disableCheck();
+	    	}    		
     	} else { // player needs to call, raise, or fold
-    		if(activePlayer.getChips() > (minRaise + chipsToCall - activePlayer.getChipsInPot())){// player has 4 options
-    			gui.disableCheck();
-    			gui.disableBet();
-    		} else {
-    			if(activePlayer.getChips() > (chipsToCall - activePlayer.getChipsInPot())){// player can cover a call, but does not have enough for the min raise
-    				gui.disableCheck();
-    				gui.disableBet();
-    				gui.disableRaise();
-    			} else {// player will be going all in if they don't fold
-    				gui.disableBet();
-    				gui.disableCall();
-    				gui.disableCheck();
-    				gui.disableRaise();
-    			}
-    		}
+    	    if(activePlayer.getChips() > (minRaise + chipsToCall - activePlayer.getChipsInPot())) { // player has 4 options
+    	     	 gui.disableCheck();
+    	     	 gui.disableBet();
+    	     } else {
+    	     	 if(activePlayer.getChips() > (chipsToCall - activePlayer.getChipsInPot())) { // player can cover a call, but does not have enough for the min raise
+    	     		 gui.disableCheck();
+    	     		 gui.disableBet();
+    	     		 gui.disableRaise();
+    	     	 } else {  // player will be going all in if they don't fold
+    	     		 gui.disableBet();
+    	     		 gui.disableCall();
+    	     		 gui.disableCheck();
+    	     		 gui.disableRaise();
+    	     	 }
+    	     }
     	}
-    	//************************
     	while(!moveMade) {
     		Move userMove = gui.getUserMove();
     			if (userMove.equals(Move.BET)) {
-    				if (activePlayer.getChipsInPot() == chipsToCall && activePlayer.getChips() > minRaise) { // player wants to bet, verify they have sufficent funds to make min bet
+    				if (activePlayer.getChipsInPot() == chipsToCall && activePlayer.getChips() > minRaise) { // player wants to bet, verify they have sufficient funds to make min bet
 	    				valid = true;
 	    			}
     			} else if (userMove.equals(Move.CHECK) || userMove.equals(Move.CALL)) {
@@ -758,14 +752,17 @@ public class Game {
     		int amt;
     		String strAmt;
     		while(!valid) {
+    			amt = Integer.parseInt(JOptionPane.showInputDialog("Enter amount to raise (" + minRaise + " - " 
+    					+ (activePlayer.getChips() - (chipsToCall - activePlayer.getChipsInPot()) + ")"), minRaise));
     			strAmt = JOptionPane.showInputDialog("Enter amount to raise (" + minRaise + " - " 
-    					+ (activePlayer.getChips() - (chipsToCall - activePlayer.getChipsInPot()) + ")"), minRaise);
+    					    					+ (activePlayer.getChips() - (chipsToCall - activePlayer.getChipsInPot()) + ")"), minRaise);
     			JOptionPane.showMessageDialog(null, strAmt);
     			if(strAmt != null){
     				amt = Integer.parseInt(strAmt);
     			} else {
     				amt = 0;
     			}
+    			
     			if (amt >= minRaise && amt <= (activePlayer.getChips() - (chipsToCall - activePlayer.getChipsInPot()))) {
     				raise(amt);
     				valid = true;
