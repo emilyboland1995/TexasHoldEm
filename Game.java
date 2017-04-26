@@ -679,9 +679,42 @@ public class Game {
      * This method prompts the player to select an appropriate action.
      */
     private void getPlayerAction() {
+    	gui.updateView();
     	gui.promptUser();
     	boolean moveMade = false;
     	boolean valid = false;
+    	//*******************
+    	gui.enableMoveButtons();
+    	gui.updateView();
+    	if (activePlayer.getChipsInPot() == chipsToCall) { // no raise or call is required
+    		if(activePlayer.getChips() > minRaise){// player has 3 options
+    			gui.disableRaise();
+    			gui.disableCall();
+    			gui.disableFold();
+    		} else { // player has 2 options
+    			gui.disableRaise();
+    			gui.disableCall();
+    			gui.disableFold();
+    			gui.disableCheck();
+    		}    		
+    	} else { // player needs to call, raise, or fold
+    		if(activePlayer.getChips() > (minRaise + chipsToCall - activePlayer.getChipsInPot())){// player has 4 options
+    			gui.disableCheck();
+    			gui.disableBet();
+    		} else {
+    			if(activePlayer.getChips() > (chipsToCall - activePlayer.getChipsInPot())){// player can cover a call, but does not have enough for the min raise
+    				gui.disableCheck();
+    				gui.disableBet();
+    				gui.disableRaise();
+    			} else {// player will be going all in if they don't fold
+    				gui.disableBet();
+    				gui.disableCall();
+    				gui.disableCheck();
+    				gui.disableRaise();
+    			}
+    		}
+    	}
+    	//************************
     	while(!moveMade) {
     		Move userMove = gui.getUserMove();
     			if (userMove.equals(Move.BET)) {
@@ -700,6 +733,8 @@ public class Game {
     				if (activePlayer.getChipsInPot() < chipsToCall) { // player wants to fold, verify folding is valid option
 	    				valid = true;
 	    			}
+    			} else if (userMove.equals(Move.ALLIN)) {
+    				valid = true;
     			}
     		if (valid) {
     			processResponse(userMove);
@@ -721,9 +756,16 @@ public class Game {
     	if (move.equals(Move.BET) || move.equals(Move.RAISE) ) { // get bet/raise amount and process
     		boolean valid = false;
     		int amt;
+    		String strAmt;
     		while(!valid) {
-    			amt = Integer.parseInt(JOptionPane.showInputDialog("Enter amount to raise (" + minRaise + " - " 
-    					+ (activePlayer.getChips() - (chipsToCall - activePlayer.getChipsInPot()) + ")"), minRaise));
+    			strAmt = JOptionPane.showInputDialog("Enter amount to raise (" + minRaise + " - " 
+    					+ (activePlayer.getChips() - (chipsToCall - activePlayer.getChipsInPot()) + ")"), minRaise);
+    			JOptionPane.showMessageDialog(null, strAmt);
+    			if(strAmt != null){
+    				amt = Integer.parseInt(strAmt);
+    			} else {
+    				amt = 0;
+    			}
     			if (amt >= minRaise && amt <= (activePlayer.getChips() - (chipsToCall - activePlayer.getChipsInPot()))) {
     				raise(amt);
     				valid = true;

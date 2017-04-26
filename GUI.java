@@ -39,6 +39,7 @@ public class GUI {
 	private JButton btnCall;
 	private JButton btnRaise;
 	private JButton btnCheck;
+	private JButton btnAllIn;
 	private JButton btnBet;
 	private JScrollPane scrollPane;
 	
@@ -230,28 +231,33 @@ public class GUI {
 		
 		btnFold = new JButton("Fold");
 		btnFold.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		btnFold.setBounds(120, 620, 100, 30);
+		btnFold.setBounds(70, 620, 100, 30);
 		frmTexasHoldem.getContentPane().add(btnFold);
 		
 		btnBet = new JButton("Bet");
 		btnBet.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		btnBet.setBounds(235, 620, 100, 30);
+		btnBet.setBounds(185, 620, 100, 30);
 		frmTexasHoldem.getContentPane().add(btnBet);
 		
 		btnRaise = new JButton("Raise");
 		btnRaise.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		btnRaise.setBounds(350, 620, 100, 30);
+		btnRaise.setBounds(300, 620, 100, 30);
 		frmTexasHoldem.getContentPane().add(btnRaise);
 		
 		btnCall = new JButton("Call");
 		btnCall.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		btnCall.setBounds(465, 620, 100, 30);
+		btnCall.setBounds(415, 620, 100, 30);
 		frmTexasHoldem.getContentPane().add(btnCall);
 		
 		btnCheck = new JButton("Check");
 		btnCheck.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		btnCheck.setBounds(580, 620, 100, 30);
+		btnCheck.setBounds(530, 620, 100, 30);
 		frmTexasHoldem.getContentPane().add(btnCheck);
+
+		btnAllIn = new JButton("All In");
+		btnAllIn.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		btnAllIn.setBounds(645, 620, 100, 30);
+		frmTexasHoldem.getContentPane().add(btnAllIn);
 		
 		JButton btnExit = new JButton("Quit");
 		btnExit.setBounds(695, 10, 90, 25);
@@ -277,6 +283,11 @@ public class GUI {
 		btnCheck.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				hasCheck();
+			}
+		});
+		btnAllIn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				hasAllIn();
 			}
 		});
 		btnCall.addActionListener(new ActionListener() {
@@ -306,18 +317,35 @@ public class GUI {
 		btnCheck.setEnabled(false);
 		btnBet.setEnabled(false);
 		btnRaise.setEnabled(false);
+		btnAllIn.setEnabled(false);
 	}
 	
-	private void enableMoveButtons() {
+	public void enableMoveButtons() {
 		btnFold.setEnabled(true);
 		btnCall.setEnabled(true);
 		btnCheck.setEnabled(true);
 		btnBet.setEnabled(true);
 		btnRaise.setEnabled(true);
+		btnAllIn.setEnabled(true);
+	}
+	
+	public void disableFold(){
+		btnFold.setEnabled(false);
+	}
+	public void disableCall() {
+		btnCall.setEnabled(false);
+	}
+	public void disableCheck() {
+		btnCheck.setEnabled(false);
+	}
+	public void disableBet() {
+		btnBet.setEnabled(false);
+	}
+	public void disableRaise() {
+		btnRaise.setEnabled(false);
 	}
 	
 	public Game.Move getUserMove() {
-		enableMoveButtons();
 		while (this.userMove.equals(Game.Move.NOMOVE)) {
 			System.out.println("");
 		}
@@ -339,6 +367,9 @@ public class GUI {
 	}
 	private void hasCheck() {
 		this.userMove = Game.Move.CHECK;
+	}
+	private void hasAllIn(){
+		this.userMove = Game.Move.ALLIN;
 	}
 	private void hasRaise(){
 		this.userMove = Game.Move.RAISE;
@@ -443,7 +474,14 @@ public class GUI {
 	}
 	
 	public void updateChipsToCall() {
-		this.chipsToCall.setText("Chips to Call: " + this.game.getChipsToCall());
+		int chips_to_call;
+		if(this.game.getChipsToCall() > this.game.getPlayerChipsInPot()){
+			chips_to_call = this.game.getChipsToCall() - this.game.getPlayerChipsInPot();
+		} else {
+			chips_to_call = 0;
+		}
+		this.chipsToCall.setText("Chips to Call: " + chips_to_call);
+		btnCall.setText("Call (" + chips_to_call + ")");
 	}
 	
 	public void updatePlayerChips() {
