@@ -326,7 +326,7 @@ public class GUI {
 				JOptionPane.YES_OPTION, JOptionPane.QUESTION_MESSAGE) == 0;
 	}
 	
-	private void disableMoveButtons() {
+	public void disableMoveButtons() {
 		btnFold.setEnabled(false);
 		btnCall.setEnabled(false);
 		btnCheck.setEnabled(false);
@@ -350,8 +350,6 @@ public class GUI {
 		}
 		Game.Move moveMade = userMove;
 		this.userMove = Game.Move.NOMOVE;
-		disableMoveButtons();
-		System.out.println("Waiting...");
 		return moveMade;
 	}
 	

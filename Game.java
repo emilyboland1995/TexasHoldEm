@@ -15,6 +15,7 @@ import javax.swing.JOptionPane;
 
 public class Game {
 	public static enum Move {FOLD, CHECK, CALL, BET, RAISE, NOMOVE, ALLIN};
+	private final int defaultStartingChips = 1000;
 
 	private int pot;							// current chip value in pot
 	private int smallBlind; 					// current small blind
@@ -33,7 +34,7 @@ public class Game {
 	private int playersInHand;					// count of players in current hand
 	private boolean botRevealed;				// flags whether bot cards revealed
 	private Deck deck = new Deck();				// deck of cards
-	private int startingChips = 1000;			//starting chips
+	private int startingChips;					//starting chips
 	private int roundsAtEachBlind = 10;			//number of rounds at each blind level
 	private int blindLevel = 0;					//current blind level
 	private GUI gui = new GUI(this);			//gui
@@ -50,6 +51,9 @@ public class Game {
 		turnFlag = false;
 		riverFlag = false;
 		botRevealed = false;
+		startingChips = defaultStartingChips;
+		
+		displayStartMenu();
 		
 		bot = new Bot("Bot", startingChips);
 		player = new Player("User", startingChips);
@@ -63,7 +67,7 @@ public class Game {
 		// Setup initial board cards
 		gui.updateBoardCards();
 		
-		displayStartMenu();
+		
 	}
 	/**
 	 * Displays a start menu for the user which prompts the user to
@@ -74,16 +78,16 @@ public class Game {
 	 * or make a valid selection.
 	 */
 	private void displayStartMenu() {
-		boolean moveMade = false;
+		boolean gameStarted = false;
 		int selectedOption = 0;
-		while (!moveMade) {
+		while (!gameStarted) {
 			selectedOption = gui.displayStartMenu(); // Display start menu and store user selection
-			moveMade = selectedOption >= 0; // Set moveMade to true only if the user made a valid selection
 			switch (selectedOption) {
 				case 0:		// Start game
+							gameStarted = true;
 							break;
 				case 1:		// Set starting chips
-							promptForStartingChips();
+							this.promptForStartingChips();
 							break;
 				case 2:		// Set rounds for each blind level
 							promptForRoundsAtEachBlind();
@@ -91,43 +95,54 @@ public class Game {
 				case 3:		// Quit game
 							if (gui.confirmQuit()) {
 								System.exit(0); // Quit game
-							} else {
-								moveMade = false; // User decided not to quit, display start menu again
 							}
 							break;
 				default: 	
 							gui.appendTextAreaLine("Invalid response. Please try again.");
 			}
+			gui.updateView();
 		}
 	}
 	
 	/**
 	 * Prompt the user for the blinds used for each round
+	 * @return True if successful, false if user cancelled
 	 */
-	private void promptForRoundsAtEachBlind() {
-		int response = 0;	
-		while(response < 1) {
+	private boolean promptForRoundsAtEachBlind() {
+		int responseInt = 0;	
+		while(responseInt < 1) {
 			try{
-				response = Integer.parseInt(JOptionPane.showInputDialog("Enter rounds at each blind level (1 minimum): ", roundsAtEachBlind));
-			} catch(NumberFormatException ex) {
-			}
-		}
-		roundsAtEachBlind = response;
-	}
-	/**
-	 * Prompts user to provide the number of starting chips for the players
-	 */
-	private void promptForStartingChips() {
-		int response = 0;
-		while(response < 500) {
-			try{
-				response = Integer.parseInt(JOptionPane.showInputDialog("Enter starting chips (500 minimum): ", startingChips));
-				if (response < 500) {
+				String response = JOptionPane.showInputDialog("Enter rounds at each blind level (1 minimum): ", roundsAtEachBlind);
+				if (response == null) {
+				    return false;
+				} else {
+				    responseInt = Integer.parseInt(response);
 				}
 			} catch(NumberFormatException ex) {
 			}
 		}
-		startingChips = response;
+		this.roundsAtEachBlind = responseInt;
+		return true;
+	}
+	/**
+	 * Prompts user to provide the number of starting chips for the players
+	 * @return		True if the change was successful, false if the cancelled
+	 */
+	private boolean promptForStartingChips() {
+		int responseInt = 0;
+		while(responseInt < 500) {
+			try{
+				String response = JOptionPane.showInputDialog("Enter starting chips (500 minimum): ", startingChips);
+				if (response == null) {
+					return false;
+				} else {
+					responseInt = Integer.parseInt(response);
+				}
+			} catch(NumberFormatException ex) {
+			}
+		}
+		this.startingChips = responseInt;
+		return true;
 	}
 	/**
 	 * Adjust blinds based on blind level
@@ -166,7 +181,7 @@ public class Game {
 			smallBlind = smallBlind * 2;
 			bigBlind = bigBlind * 2;
 		}
-		JOptionPane.showInputDialog("***** Blinds are now " + smallBlind + " / " + bigBlind + "*****");
+		JOptionPane.showMessageDialog(null,"***** Blinds are now " + smallBlind + " / " + bigBlind + "*****");
 	}
 
 	/**
@@ -731,12 +746,12 @@ public class Game {
     				valid = true;
     			}
     		if (valid) {
-    			processResponse(userMove);
-				moveMade = true;
+    			moveMade = processResponse(userMove);
     		} else {
     			JOptionPane.showMessageDialog(null, "Invalid move!");
     		}
     	}
+    	gui.disableMoveButtons();
     	gui.removeUserPrompt();
     }
     
@@ -745,27 +760,26 @@ public class Game {
      * move the player requested. Assumes r contains a
      * value selection.
      * @param r		The response provided by the user
+     * @return		True if a move is made, false if
+     * 				otherwise
      */
-    private void processResponse(Move move) {
+    private boolean processResponse(Move move) {
     	if (move.equals(Move.BET) || move.equals(Move.RAISE) ) { // get bet/raise amount and process
     		boolean valid = false;
-    		int amt;
+    		int amt = 0;
     		String strAmt;
     		while(!valid) {
-    			amt = Integer.parseInt(JOptionPane.showInputDialog("Enter amount to raise (" + minRaise + " - " 
-    					+ (activePlayer.getChips() - (chipsToCall - activePlayer.getChipsInPot()) + ")"), minRaise));
     			strAmt = JOptionPane.showInputDialog("Enter amount to raise (" + minRaise + " - " 
     					    					+ (activePlayer.getChips() - (chipsToCall - activePlayer.getChipsInPot()) + ")"), minRaise);
-    			JOptionPane.showMessageDialog(null, strAmt);
-    			if(strAmt != null){
-    				amt = Integer.parseInt(strAmt);
-    			} else {
-    				amt = 0;
-    			}
-    			
-    			if (amt >= minRaise && amt <= (activePlayer.getChips() - (chipsToCall - activePlayer.getChipsInPot()))) {
-    				raise(amt);
-    				valid = true;
+    			if (strAmt == null) {
+    				return false; // User cancelled
+    			}else {
+        			amt = Integer.parseInt(strAmt);
+        			
+        			if (amt >= minRaise && amt <= (activePlayer.getChips() - (chipsToCall - activePlayer.getChipsInPot()))) {
+        				raise(amt);
+        				valid = true;
+        			}
     			}
     		}
     	}
@@ -786,6 +800,7 @@ public class Game {
     	if (move.equals(Move.FOLD)) { // fold
     		fold();
     	}
+    	return true;
     }
     
     /**
