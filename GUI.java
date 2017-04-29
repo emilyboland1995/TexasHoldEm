@@ -3,6 +3,8 @@
  * the game. At this stage, it is designed for simplicity. It
  * works with the Game class to handle user input and display
  * appropriate information.
+ * 
+ * Requirement Sets: 3.0.0
  */
 
 import javax.swing.JFrame;
@@ -24,16 +26,20 @@ import javax.swing.SwingConstants;
 
 public class GUI {
 	private static String[] startMenuOptions = {"Start Game", "Set Starting Chips", "Adjust Rounds Per Blind Level", "Quit Game"};
-
+	
+	// Default sizes of the cards
 	private static final int cardHeight = 120;
 	private static final int cardWidth = 98;
 	
-	private JFrame frmTexasHoldem;
+	private JFrame frmTexasHoldem; // Main frame for the whole game
 	
+	// JLabel[]s for holding the images of playing cards
 	private JLabel[] boardCardImages = new JLabel[5];
 	private JLabel[] playerHoleCardImages = new JLabel[2];
 	private JLabel[] botHoleCardImages = new JLabel[2];
 	
+	// JLabel objects to reflect key values
+	// associated with the Game's current state
 	private JLabel playerChips;
 	private JLabel playerChipsInPot;
 	private JLabel botChips;
@@ -42,6 +48,8 @@ public class GUI {
 	private JLabel chipsToCall;
 	private JLabel userPrompt;
 	
+	// Buttons that allow the user to
+	// perform all available betting actions
 	private JButton btnFold;
 	private JButton btnCall;
 	private JButton btnRaise;
@@ -49,12 +57,14 @@ public class GUI {
 	private JButton btnAllIn;
 	private JButton btnBet;
 	
-	private JScrollPane scrollPane; 	// Text area for game updates
+	// Text area for game updates and key pieces
+	// of information not otherwise present
+	private JScrollPane scrollPane; 	
 	private JTextArea textArea;
 	
 	private Game.Move userMove = Game.Move.NOMOVE; // Player move tracker
 	
-	private Game game;
+	private Game game; // The instance of Game from which GUI will update
 
 	/**
 	 * Create the application.
@@ -73,7 +83,12 @@ public class GUI {
 	}
 
 	/**
-	 * Initialize the contents of the frame.
+	 * Initialize the contents of the frame. Creates all
+	 * components found in the GUI, including betting action
+	 * buttons, a text area, a quit button, and various text
+	 * labels for key information.
+	 * 
+	 * Requirement Sets: 3.1.0, 3.2.0
 	 */
 	private void initialize() {
 		
@@ -85,6 +100,7 @@ public class GUI {
 		frmTexasHoldem.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmTexasHoldem.getContentPane().setLayout(null);
 		
+		// Requirement 3.2.1
 		scrollPane = new JScrollPane();
 		scrollPane.setBounds(120, 400, 560, 200);
 		frmTexasHoldem.getContentPane().add(scrollPane);
@@ -95,6 +111,7 @@ public class GUI {
 		scrollPane.setViewportView(textArea);
 		textArea.setColumns(10);
 		
+		// Requirement 3.3.1
 		JPanel playerCard1 = new JPanel();
 		FlowLayout flowLayout_3 = (FlowLayout) playerCard1.getLayout();
 		flowLayout_3.setVgap(0);
@@ -203,7 +220,7 @@ public class GUI {
 		boardCard5.add(boardCardImages[4]);
 		
 		
-		
+		// Requirements: 3.3.2, 3.3.3, 3.3.4, 3.3.5
 		playerChips = new JLabel("Your Chips:");
 		playerChips.setBounds(60, 40, 220, 14);
 		frmTexasHoldem.getContentPane().add(playerChips);
@@ -211,8 +228,6 @@ public class GUI {
 		playerChipsInPot = new JLabel("Chips in Pot: ");
 		playerChipsInPot.setBounds(60, 60, 227, 14);
 		frmTexasHoldem.getContentPane().add(playerChipsInPot);
-		
-		
 		
 		botChips = new JLabel("Bot's Chips:");
 		botChips.setBounds(525, 40, 227, 14);
@@ -239,7 +254,7 @@ public class GUI {
 		frmTexasHoldem.getContentPane().add(userPrompt);
 		
 		
-		
+		// Requirement: 3.1.2
 		btnFold = new JButton("Fold");
 		btnFold.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		btnFold.setBounds(70, 620, 100, 30);
@@ -269,13 +284,7 @@ public class GUI {
 		btnAllIn.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		btnAllIn.setBounds(645, 620, 100, 30);
 		frmTexasHoldem.getContentPane().add(btnAllIn);
-		
-		JButton btnExit = new JButton("Quit");
-		btnExit.setBounds(695, 10, 90, 25);
-		frmTexasHoldem.getContentPane().add(btnExit);
-		
-		
-		
+
 		btnFold.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				hasFold();
@@ -310,6 +319,12 @@ public class GUI {
 		
 		disableMoveButtons();
 		
+		
+		// Requirement: 3.1.1
+		JButton btnExit = new JButton("Quit");
+		btnExit.setBounds(695, 10, 90, 25);
+		frmTexasHoldem.getContentPane().add(btnExit);
+		
 		btnExit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (confirmQuit()) { // If user wants to quit
@@ -321,11 +336,23 @@ public class GUI {
 		// Setup initial view
 		setInitialView();
 	}
+	/**
+	 * Prompts the user to confirm whether or not they
+	 * wish to fully exit the game.
+	 * @return		True if the user requests to quit, false
+	 * 				if otherwise.
+	 * 
+	 * Requirement: 3.1.1
+	 */
 	public boolean confirmQuit() {
 		return JOptionPane.showConfirmDialog(null, "Are you sure you want to quit?", "Continue", 
 				JOptionPane.YES_OPTION, JOptionPane.QUESTION_MESSAGE) == 0;
 	}
-	
+	/**
+	 * Disables all betting action buttons
+	 * 
+	 * Requirement: 3.1.2
+	 */
 	public void disableMoveButtons() {
 		btnFold.setEnabled(false);
 		btnCall.setEnabled(false);
@@ -334,7 +361,11 @@ public class GUI {
 		btnRaise.setEnabled(false);
 		btnAllIn.setEnabled(false);
 	}
-	
+	/**
+	 * Enables all betting action buttons
+	 * 
+	 * Requirement: 3.1.2
+	 */
 	public void enableMoveButtons() {
 		btnFold.setEnabled(true);
 		btnCall.setEnabled(true);
@@ -343,7 +374,15 @@ public class GUI {
 		btnRaise.setEnabled(true);
 		btnAllIn.setEnabled(true);
 	}
-	
+	/**
+	 * Waits for the user to select one of the betting
+	 * action buttons and then returns the move type
+	 * of the button selected
+	 * @return		The Game.Move enum representing the
+	 * 				move selected by the user
+	 * 
+	 * Requirement: 3.1.2
+	 */
 	public Game.Move getUserMove() {
 		while (this.userMove.equals(Game.Move.NOMOVE)) {
 			System.out.println("");
@@ -352,65 +391,131 @@ public class GUI {
 		this.userMove = Game.Move.NOMOVE;
 		return moveMade;
 	}
-	
+	/**
+	 * Disable only the Fold button
+	 */
 	public void disableFold() {
 		btnFold.setEnabled(false);
 	}
-	
+	/**
+	 * Disable only the Call button
+	 */
 	public void disableCall() {
 		btnCall.setEnabled(false);
 	}
-	
+	/**
+	 * Disable only the Check button
+	 */
 	public void disableCheck() {
 		btnCheck.setEnabled(false);
 	}
-	
+	/**
+	 * Disable only the Bet button
+	 */
 	public void disableBet() {
 		btnBet.setEnabled(false);
 	}
-	
+	/**
+	 * Disable only the Raise button
+	 */
 	public void disableRaise() {
 		btnRaise.setEnabled(true);
 	}
-	
+	/**
+	 * Disable only the All In button
+	 */
 	public void disableAllIn() {
 		btnAllIn.setEnabled(false);
 	}
-	
+	/**
+	 * Set the userMove to the type
+	 * Call to indicate that the user's
+	 * action was to call
+	 * 
+	 * Requirement: 3.1.2
+	 */
 	private void hasCalled() {
 		this.userMove = Game.Move.CALL;
 	}
+	/**
+	 * Set the userMove to the type
+	 * Bet to indicate that the user's
+	 * action was to bet
+	 * 
+	 * Requirement: 3.1.2
+	 */
 	private void hasBet() {
 		this.userMove = Game.Move.BET;
 	}
+	/**
+	 * Set the userMove to the type
+	 * Fold to indicate that the user's
+	 * action was to fold
+	 * 
+	 * Requirement: 3.1.2
+	 */
 	private void hasFold() {
 		this.userMove = Game.Move.FOLD;
 	}
+	/**
+	 * Set the userMove to the type
+	 * Check to indicate that the user's
+	 * action was to check
+	 * 
+	 * Requirement: 3.1.2
+	 */
 	private void hasCheck() {
 		this.userMove = Game.Move.CHECK;
 	}
+	/**
+	 * Set the userMove to the type
+	 * Raise to indicate that the user's
+	 * action was to raise
+	 * 
+	 * Requirement: 3.1.2
+	 */
 	private void hasRaise(){
 		this.userMove = Game.Move.RAISE;
 	}
-	
+	/**
+	 * Set the userMove to the type
+	 * AllIn to indicate that the user's
+	 * action was to go all in
+	 * 
+	 * Requirement: 3.1.2
+	 */
 	private void hasAllIn(){
 		this.userMove = Game.Move.ALLIN;
 	}
-	
-	public Game.Move getLastMove() {
-		return this.userMove;
-	}
-	
+	/**
+	 * Adds a new String of text to the text
+	 * area in the GUI. Note: If the String
+	 * text parameter contains a string with
+	 * one or more newline (\n) characters,
+	 * then multiple lines will be added.
+	 * @param text		A String containing
+	 * 					the text to be added
+	 * 					to the text area
+	 * 
+	 * Requirement: 3.2.1
+	 */
 	public void appendTextAreaLine(String text){
 		textArea.append(text + "\n");
 
 	}
+	/**
+	 * Clears all text from the text area
+	 * 
+	 * Requirement: 3.2.2
+	 */
 	public void clearTextArea(){
 		textArea.setText(null);
 	}
 	/**
 	 * Display currently visible board cards. All non-visible board cards
 	 * will be indicated by a turned over card
+	 * 
+	 * Requirement: 3.3.1
 	 */
 	public void updateBoardCards() {
 		if (!game.hasFlopOccured()) {
@@ -436,6 +541,8 @@ public class GUI {
 	
 	/**
 	 * Display the player's current hole cards
+	 * 
+	 * Requirement: 3.3.1
 	 */
 	public void setPlayerCards() {
 		Card[] holeCards = this.game.getPlayerHoleCards();
@@ -449,7 +556,10 @@ public class GUI {
 	}
 	
 	/**
-	 * Hides the bot's hole cards by displaying the standard back-of-card image
+	 * Hides the bot's hole cards by displaying the standard 
+	 * back-of-card image
+	 * 
+	 * Requirement: 3.3.1
 	 */
 	public void hideBotCards() {
 		this.botHoleCardImages[0].setIcon(scaleCardImage(new ImageIcon(Utilities.getCardFilePath(null))));
@@ -458,6 +568,8 @@ public class GUI {
 	
 	/**
 	 * Display the bot's hole cards
+	 * 
+	 * Requirement: 3.3.1
 	 */
 	public void showBotCards() {
 		Card[] holeCards = this.game.getBotHoleCards();
@@ -469,10 +581,20 @@ public class GUI {
 			this.botHoleCardImages[1].setIcon(scaleCardImage(new ImageIcon(Utilities.getCardFilePath(null))));
 		}
 	}
-	
+	/**
+	 * Provides a prompt to inform the user that
+	 * it is currently their turn.
+	 * 
+	 * Requirement: 3.3.5
+	 */
 	public void promptUser() {
 		this.userPrompt.setText("Your Turn!");
 	}
+	/**
+	 * Removes the user prompt, if present.
+	 * 
+	 * Requirement: 3.3.5
+	 */
 	public void removeUserPrompt() {
 		this.userPrompt.setText("");
 	}
@@ -484,17 +606,29 @@ public class GUI {
 	 * 						passed scaled smoothly to the
 	 * 						width and height specified by
 	 * 						the constants cardWidth and cardHeight
+	 * 
+	 * Requirement: 3.3.1
 	 */
 	public ImageIcon scaleCardImage(ImageIcon toScale) {
 		Image image = toScale.getImage(); // transform it 
 		Image newimg = image.getScaledInstance(cardWidth, cardHeight, java.awt.Image.SCALE_SMOOTH); // scale it the smooth way  
 		return new ImageIcon(newimg);  // return scaled image
 	}
-	
+	/**
+	 * Updates the size of the pot displayed
+	 * through the gui.
+	 * 
+	 * Requirement: 3.3.2
+	 */
 	public void updatePot() {
 		this.pot.setText("Pot: " + this.game.getPot());
 	}
-	
+	/**
+	 * Updates the number of chips required to
+	 * call
+	 * 
+	 * Requirement: 3.3.3
+	 */
 	public void updateChipsToCall() {
 		int chips_to_call;
 		 if(this.game.getChipsToCall() > this.game.getPlayerChipsInPot()){
@@ -505,22 +639,45 @@ public class GUI {
 		 this.chipsToCall.setText("Chips to Call: " + chips_to_call);
 		 btnCall.setText("Call (" + chips_to_call + ")");
 	}
-	
+	/**
+	 * Updates the number of chips available to the player
+	 * 
+	 * Requirement: 3.3.4
+	 */
 	public void updatePlayerChips() {
 		this.playerChips.setText("Your chips: " + this.game.getPlayerChips());
 	}
-	
+	/**
+	 * Updates the number of chips available to the bot
+	 * 
+	 * Requirement: 3.3.4
+	 */
 	public void updateBotChips() {
 		this.botChips.setText("Bot's chips: " + this.game.getBotChips());
 	}
-	
+	/**
+	 * Updates the number of chips the player has in
+	 * the pot
+	 * 
+	 * Requirement: 3.3.4
+	 */
 	public void updatePlayerInPot() {
 		this.playerChipsInPot.setText("Chips in Pot: " + this.game.getPlayerChipsInPot());
 	}
-	
+	/**
+	 * Updates the number of chips the bot has in
+	 * the pot
+	 * 
+	 * Requirement: 3.3.4
+	 */
 	public void updateBotInPot() {
 		this.botChipsInPot.setText("Bot's Chips in Pot: " + this.game.getBotChipsInPot());
 	}
+	/**
+	 * Sets the initial GUI view at the start of a game
+	 * 
+	 * Requirement Sets: 3.3.0
+	 */
 	public void setInitialView() {
 		updatePot();
 		updateChipsToCall();
@@ -532,7 +689,12 @@ public class GUI {
 		setPlayerCards();
 		updatePlayerInPot();
 	}
-	
+	/**
+	 * Updates the GUI components to reflect the
+	 * current state of the game
+	 * 
+	 * Requirement Sets: 3.3.0
+	 */
 	public void updateView(){
 		int x;
 		if (this.game.botRevealed()) {
@@ -552,7 +714,13 @@ public class GUI {
 		 x = textArea.getSelectionEnd();
 		 textArea.select(x,x);
 	}
-	
+	/**
+	 * Displays a simple start menu from which the user
+	 * can 
+	 * @return
+	 * 
+	 * Requirement: 2.1.1, 2.1.2, 3.1.1
+	 */
 	public int displayStartMenu() {
 		int selectedOption = 0;
 		selectedOption = JOptionPane.showOptionDialog(frmTexasHoldem, "Please Select One of the Following Options:", 

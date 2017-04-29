@@ -1,35 +1,71 @@
+/**
+ * 
+ * This class defines the Card object, which is capable of representing all
+ * 52 possible playing cards. Getters are provided to access various 
+ * characteristics of a given instance of Card, along with methods to compare
+ * any two cards, generate a hash code, and provide a String representation 
+ * of the card.
+ *
+ * Requirement Sets: 1.8.0
+ */
 
 public class Card {
-	private String cardRank;
-	private String cardSuit;
+	private String cardRank; // A String representation of the card's rank
+	private String cardSuit; // A String representation of the card's suit
 	private int cardRankInt; //Ace=1, Jack=11, Queen=12, King=13
 	private int cardSuitInt; //Spades=1, Clubs=2, Hearts=3, Diamonds=4 
 
-	public Card(String suit, String value) {
+	/**
+	 * A simple constructor that crates a new instance of Card of
+	 * the given rank and suit
+	 * @param suit		A String representing the suit of the card
+	 * 					to be created
+	 * @param value		A String representing the rank of the card
+	 * 					to be created
+	 * 
+	 * Requirement: 1.8.3
+	 */
+	public Card(String suit, String rank) {
 		cardSuit = suit;
-	    cardRank = value;
+	    cardRank = rank;
 	    cardRankInt = setRankInt();
 	    cardSuitInt = setSuitInt();
 	}
-
+	/**
+	 * @return		A String representing the Card's rank
+	 * 
+	 * Requirement: 1.8.3
+	 */
 	public String getRankString() {
-		//Print the string value of the card ranking
 	    return cardRank;
 	}
-
+	/**
+	 * @return		A String representing the Card's suit
+	 * 
+	 * Requirement: 1.8.3
+	 */
 	public String getSuitString() {
-		//Print the string value of the card suit 
 	    return cardSuit;
 	}
-	  
+	/**
+	 * @return			The int associated with the Card's rank
+	 * 
+	 * Requirement: 1.8.2
+	 */
 	public int getRankInt() {
 		return cardRankInt;
 	}
-	  
+	/**
+	 * @return			The int associated with the Card's suit
+	 * 
+	 * Requirement: 1.8.2
+	 */
 	public int getSuitInt() {
 		return cardSuitInt;
 	}
-	  
+	/**
+	 * A simple hascode function
+	 */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -40,7 +76,9 @@ public class Card {
 		result = prime * result + cardSuitInt;
 		return result;
 	}
-
+	/**
+	 * An implementation of the equals method for Card objects
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -66,7 +104,13 @@ public class Card {
 			return false;
 		return true;
 	}
-
+	/**
+	 * Generates an int representing the rank of the card
+	 * based on its String rank
+	 * @return		An int representing the rank of the card (1-13)
+	 * 
+	 * Requirement: 1.8.2
+	 */
 	private int setRankInt() {
 		  //Print the integer value of the card ranking 
 		  if (cardRank.equals("Jack"))
@@ -90,38 +134,46 @@ public class Card {
 			  return Integer.parseInt(cardRank); 
 		  }
 	  }
-	  
+	/**
+	 * Generates an int representing the suit of the card
+	 * based on its String suit
+	 * @return		An int representing the suit of the card (1-4)
+	 * 
+	 * Requirement: 1.8.2
+	 */
 	  private int setSuitInt() {
-		  //Print the integer value of the card suit 
-		  if (cardSuit.equals("Spades")) // spades = 1 
-		  {
+		  if (cardSuit.equals("Spades")) { // spades = 1 
 			  return 1; 
 		  }
-		  else if (cardSuit.equals("Clubs")) // clubs = 2
-		  {
+		  else if (cardSuit.equals("Clubs")) { // clubs = 2
 			  return 2; 
 		  }
-		  else if (cardSuit.equals("Hearts")) //hearts = 3
-		  {
+		  else if (cardSuit.equals("Hearts")) { //hearts = 3 
 			  return 3; 
 		  }
-		  else
-		  {
+		  else {
 			  return 4;    //diamonds = 4
 		  } 
 	  }
-	  
-	  public boolean equals(Card other) {
-		  return this.cardRankInt == other.cardRankInt && this.cardSuitInt == other.cardSuitInt;
-	  }
-
+	  /**
+	   * A simple toString implementation for Card objects.
+	   * @return		A String containing the Card's suit
+	   * 				and rank in string form
+	   * 
+	   * Requirement: 1.8.3
+	   */
 	  public String toString() {
-		  //Print the formatted rank and suit of the card 
 	    return String.format("%s of %s", cardRank, cardSuit);
 	  }
-	  
+	  /**
+	   * Builds and returns a String containing the Card's suit and
+	   * rank in int form
+	   * @return		A String containing the Card's suit and rank
+	   * 				in int form
+	   * 
+	   * Requirement: 1.8.2
+	   */
 	  public String printIntVals() {
-		  //Print the formatted rank and suit of the card 
 	    return String.format(getRankInt() + " of " + getSuitInt());
 	  }
 }

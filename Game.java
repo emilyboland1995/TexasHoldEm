@@ -6,14 +6,17 @@
  * playing of multiple hands of Texas Hold 'Em. Game is also designed to
  * work in tandem with an instance of the GUI class. This relationship allows
  * a user to play the game through the GUI provided by the GUI class.
+ * 
+ * Requirement Sets: 1.0.0, 2.0.0, 3.0.0
  *
  */
 
 import java.util.ArrayList;
 import javax.swing.JOptionPane;
 
-
 public class Game {
+	
+	// Requirement: 1.4.0
 	public static enum Move {FOLD, CHECK, CALL, BET, RAISE, NOMOVE, ALLIN};
 	private final int defaultStartingChips = 1000;
 
@@ -107,6 +110,8 @@ public class Game {
 	/**
 	 * Prompt the user for the blinds used for each round
 	 * @return True if successful, false if user cancelled
+	 * 
+	 * Requirement: 2.1.2
 	 */
 	private boolean promptForRoundsAtEachBlind() {
 		int responseInt = 0;	
@@ -127,7 +132,10 @@ public class Game {
 	/**
 	 * Prompts user to provide the number of starting chips for the players
 	 * @return		True if the change was successful, false if the cancelled
+	 * 
+	 * Requirement: 2.1.1
 	 */
+	
 	private boolean promptForStartingChips() {
 		int responseInt = 0;
 		while(responseInt < 500) {
@@ -146,6 +154,8 @@ public class Game {
 	}
 	/**
 	 * Adjust blinds based on blind level
+	 * 
+	 * Requirement: 2.3.1
 	 */
 	private void adjustBlinds() {
 		switch(blindLevel) {
@@ -250,7 +260,6 @@ public class Game {
 		if (!isStacked) {
 			deck.resetDeck(); // Verify deck is shuffled with the appropriate number of cards
 		}
-		Card[] holeCards = new Card[2];
 		playersInHand = 1;
 		// make sure dealer status is set to inHand
 		dealer.setInHand(true);
@@ -271,9 +280,7 @@ public class Game {
 		activePlayer = dealer.getNextPlayer();
 		for (int x = 0; x < playersInHand; x++) {
 			// deal player cards
-			holeCards[0] = deck.drawCard();
-			holeCards[1] = deck.drawCard();
-			activePlayer.setHoleCards(holeCards);
+			activePlayer.setHoleCards(deck.drawCard(), deck.drawCard());
 			activePlayer = activePlayer.getNextPlayer();
 		}
 		
@@ -341,6 +348,8 @@ public class Game {
 	
 	/**
 	 * Processes a Fold.
+	 * 
+	 * Requirement: 1.1.1
 	 */
     public void fold() {
     	activePlayer.setInHand(false);
@@ -361,6 +370,8 @@ public class Game {
      * 						if otherwise (for instance, if the active
      * 						player has insufficient chips to cover the
      * 						raise amount specified).
+     * 
+     * Requirement: 1.1.2, 1.1.5, 1.1.6
      */
     public boolean raise(int raiseAmt) { // returns true if successful
     	if (raiseAmt < 1) {
@@ -389,6 +400,8 @@ public class Game {
     /**
      * Processes a Check.
      * @return		True if it is possible to check, false if otherwise.
+     * 
+     * Requirement: 1.1.4
      */
    	public boolean check() { // returns true if check successful
     	if (activePlayer.getChipsInPot() == chipsToCall) { // ok to check
@@ -403,6 +416,8 @@ public class Game {
      * Processes a Call. This method will determine whether
      * the player is capable of calling without going all-in and
      * adjusts the game and player states accordingly.
+     * 
+     * Requirement: 1.1.3
      */
     private void call() {
     	int amtToCall = chipsToCall - activePlayer.getChipsInPot();
@@ -927,6 +942,10 @@ public class Game {
 	public boolean hasTurnOccured() {
 		return this.turnFlag;
 	}
+	/**
+	 * @return		The number of chips required
+	 * 				to call and remain in the hand
+	 */
 	public int getChipsToCall() {
 		return chipsToCall;
 	}

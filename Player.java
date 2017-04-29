@@ -7,6 +7,7 @@
  * Each instance can be assigned a link to another instance of Player. This allows
  * a sort of linked list of players to be constructed.
  *
+ * Requirement Sets: 1.6.0
  */
 
 public class Player {
@@ -34,7 +35,9 @@ public class Player {
 		this(pName, 0);		
 	}
 	/**
-	 * 
+	 * A constructor for new instances of Player. Allows
+	 * the caller to specify the playerName, and startingShips
+	 * values.
 	 * @param pName			A String to serve as the name of the
 	 * 						new instance of Player.
 	 * @param startingChips	The number of starting chips available to
@@ -77,6 +80,8 @@ public class Player {
 	 * Sets the player's name equal to playerName.
 	 * @param playerName		A String that will serve
 	 * 							as the player's name.
+	 * 
+	 * Requirement: 1.6.1
 	 */
 	public void setPlayerName(String playerName) {
 		if (playerName == null) {
@@ -89,22 +94,27 @@ public class Player {
 	 * @return		Returns a String
 	 * 				containing this
 	 * 				player's name
+	 * 
+	 * Requirement: 1.6.1
 	 */
 	public String getPlayerName(){
 		return this.playerName;
 	}
 	/**
-	 * 
 	 * @return		The number of chips
 	 * 				currently available
 	 * 				to the player
+	 * 
+	 * Requirement: 1.6.5
 	 */
 	public int getChips() {
 		return chips;
 	}
 	/**
-	 * 
+	 * Set's the number of chips available to the player
 	 * @param chips
+	 * 
+	 * Requirement: 1.6.3
 	 */
 	public void setChips(int chips) {
 		if (chips < 0) {
@@ -113,10 +123,11 @@ public class Player {
 		this.chips = chips;
 	}
 	/**
-	 * 
 	 * @return		Returns the number of chips
 	 * 				this player has currently
 	 * 				invested in the pot
+	 * 
+	 * Requirement: 1.6.5
 	 */
 	public int getChipsInPot() {
 		return chipsInPot;
@@ -126,6 +137,8 @@ public class Player {
 	 * @param chipsInPot	The number of chips
 	 * 						this player currently
 	 * 						has invested in the pot
+	 * 
+	 * Requirement: 1.6.4
 	 */
 	public void setChipsInPot(int chipsInPot) {
 		if (chipsInPot < 0) {
@@ -134,22 +147,28 @@ public class Player {
 		this.chipsInPot = chipsInPot;
 	}
 	/**
-	 * 
 	 * @return		A Card[] containing the hole
 	 * 				cards for this player
+	 * 
+	 * Requirement: 1.6.7
 	 */
 	public Card[] getHoleCards() {
 		return holeCards;
 	}
 	/**
-	 * 
+	 * Sets the player's current hole cards
 	 * @param holeCards
+	 * 
+	 * Requirement: 1.6.7
 	 */
-	public void setHoleCards(Card[] holeCards) {
-		this.holeCards = holeCards.clone();
+	public void setHoleCards(Card first, Card second) {
+		if (first == null || second == null) {
+			throw new NullPointerException("Cards cannot be set to null");
+		}
+		this.holeCards[0] = first;
+		this.holeCards[1] = second;
 	}
 	/**
-	 * 
 	 * @return		A boolean indicating whether
 	 * 				this instance of Player is 
 	 * 				still active in the current

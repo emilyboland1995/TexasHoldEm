@@ -5,7 +5,8 @@
  *  the strength of a pre-flop hand, where only one's hole cards are known. The win-rate is obtained
  *  by playing 1,000,000 simplified games for each of 169 distinct possible starting hands and tracking
  *  the results, assuming both players play to showdown.
- *
+ *  
+ *  Requirement Sets: 1.7.0
  */
 public class PreFlopHandRanker {
 	private static final double[][] preFlopWinRateTable 
@@ -30,6 +31,8 @@ public class PreFlopHandRanker {
 	 * @param holeCards		A Card[] containing two cards (one set of hole cards)
 	 * @return				A double containing the approximate rate at this the 
 	 * 						set of hole cards passed wins
+	 * 
+	 * Requirement: 1.7.2
 	 */
 	public static double getHoleCardWinRate(Card[] holeCards) {
 		if (holeCards.length != 2) {

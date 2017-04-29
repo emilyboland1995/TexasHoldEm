@@ -5,8 +5,9 @@ import java.util.Random;
  * The main addition the Bot class makes to the Player class
  * is the addition of the getAction method, which prompts the
  * bot to make a move based on current game conditions.
+ * 
+ * Requirement Sets: 1.0.0, 2.0.0
  */
-
 
 public class Bot extends Player {
 	private int strategy; // An indicator of the bot's confidence
@@ -17,7 +18,10 @@ public class Bot extends Player {
 	private static final int LOW = 2;
 	private static final int WEAK = 3;
 	
+	// Pre-flop action thresholds
 	private static double[] preFlopThresholds = {0.3, 0.5, 0.8};
+	
+	// Used to randomize the bot's behavior
 	private Random rand;
 	
 	/**
@@ -27,8 +31,7 @@ public class Bot extends Player {
 	 */
 	public Bot(String botName,int startingChips) {
 		super(botName, startingChips);
-		rand = new Random();
-		//semiBluff = false;
+		this.rand = new Random();
 	}
 	
 	/**
@@ -37,6 +40,8 @@ public class Bot extends Player {
 	 * @param state		The Game object currently in use
 	 * @return			A String containing the move selected by
 	 * 					this instance of Bot
+	 * 
+	 * Requirements: 1.2.0, 1.2.3, 2.2.2
 	 */
 	public BotMove getAction(Game state) {
 		double choice = rand.nextDouble();
@@ -165,6 +170,8 @@ public class Bot extends Player {
 	/**
 	 * Determines the strategy the bot will pursue based on the strength
 	 * of the bot's hole cards
+	 * 
+	 * Requirement: 1.2.3
 	 */
 	private void evaluatePreFlopStrength() {
 		double preFlopStrength = PreFlopHandRanker.getHoleCardWinRate(this.getHoleCards());

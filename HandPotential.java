@@ -7,6 +7,7 @@ import java.util.Set;
  * potential of a particular players hand, given currently available board 
  * cards.
  *
+ * Requirement: 2.2.1
  */
 public class HandPotential {
 	private static final int AHEAD = 0;

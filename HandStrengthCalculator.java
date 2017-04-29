@@ -1,6 +1,9 @@
 /**
  * This class provides multiple implementations of the Effective Hand Strength
- * formula. 
+ * formula, along with a simple method for calculating basic hand strength. 
+ * Details for each method can be found in the method descriptions.
+ * 
+ * Requirement Sets: 2.0.0
  */
 
 import java.util.*;
@@ -16,10 +19,14 @@ public class HandStrengthCalculator {
 	 * HS: Hand Strength (explained further for getHandStrength)
 	 * PPOT: Positive Potential
 	 * NPOT: Negative Potential
-	 * @param holeCards
-	 * @param boardCards
-	 * @param potentials
-	 * @return
+	 * @param holeCards		A Card[] containing one player's hole cards
+	 * @param boardCards	A Card[] containing all visible board cards	
+	 * @param potentials	A HandPotential object containing the calculated
+	 * 						PPOT and NPOT for the hole and board cards
+	 * 						passed.
+	 * @return				A double containing the EHS as shown above.
+	 * 
+	 * Requirement: 2.4.3
 	 */
 	public static double getEffectiveHandStrength(Card[] holeCards, Card[] boardCards, HandPotential potentials) {
 		double handStrength = getHandStrength(holeCards, boardCards);
@@ -39,10 +46,14 @@ public class HandStrengthCalculator {
 	 * optimistic version is the absence of the HS * NPOT term in the
 	 * optimistic version, which makes this version better for betting
 	 * decisions.
-	 * @param holeCards
-	 * @param boardCards
-	 * @param potentials
-	 * @return
+	 * @param holeCards		A Card[] containing one player's hole cards
+	 * @param boardCards	A Card[] containing all visible board cards	
+	 * @param potentials	A HandPotential object containing the calculated
+	 * 						PPOT and NPOT for the hole and board cards
+	 * 						passed.
+	 * @return				A double containing the EHS as shown above.
+	 * 
+	 * Requirement: 2.4.3
 	 */
 	public static double getEffectiveHandStrengthOptimistic(Card[] holeCards, Card[] boardCards, HandPotential potentials) {
 		double handStrength = getHandStrength(holeCards, boardCards);
@@ -62,6 +73,8 @@ public class HandStrengthCalculator {
 	 * @param boardCards	A Card[] containing all visible board cards	
 	 * @return				The effective hand strength of the player's
 	 * 						best hand
+	 * 
+	 * Requirement: 2.4.3
 	 */
 	public static double getEffectiveHandStrength(Card[] holeCards, Card[] boardCards) {
 		return getEffectiveHandStrength(holeCards, boardCards, new HandPotential(holeCards, boardCards));
@@ -82,6 +95,8 @@ public class HandStrengthCalculator {
 	 * @param boardCards	A Card[] containing all visible board cards	
 	 * @return				The effective hand strength of the player's
 	 * 						best hand
+	 * 
+	 * Requirement: 2.4.3
 	 */
 	public static double getEffectiveHandStrengthOptimistic(Card[] holeCards, Card[] boardCards) {
 		return getEffectiveHandStrengthOptimistic(holeCards, boardCards, new HandPotential(holeCards, boardCards));
@@ -96,6 +111,8 @@ public class HandStrengthCalculator {
 	 * @param holeCards		A Card[] containing one player's hole cards
 	 * @param boardCards	A Card[] containing all visible board cards	
 	 * @return				The strength of the given hand
+	 * 
+	 * Requirement: 2.4.2
 	 */
 	public static double getHandStrength(Card[] holeCards, Card[] boardCards) {
 		Deck d = new Deck(); // Test deck

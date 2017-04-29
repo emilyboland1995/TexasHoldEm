@@ -1,5 +1,10 @@
 /**
+ * This class defines a simple implementation of a deck of cards
+ * This class allows common operations such as drawing a card and
+ * shuffling, along with a some other utilities for working with
+ * the deck.
  * 
+ * Requirement Sets: 1.0.0
  */
 
 import java.util.HashSet;
@@ -10,42 +15,40 @@ import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Deck {
-	  private static final String[] SUITS = {"Spades", "Clubs", "Hearts", "Diamonds"};
-	  private static final String[] VALUES = {
-	    "Ace", "2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King"
-	  };
+	private static final String[] SUITS = {"Spades", "Clubs", "Hearts", "Diamonds"};
+	private static final String[] VALUES = {
+			"Ace", "2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King"
+	};
 
-	  private Card[] deckOfCards; // The Deck
-	  private int deckIndex; // Top-card index
+	private Card[] deckOfCards; // The Deck
+	private int deckIndex; // Top-card index
 	  
-	  /**
-	   * A basic constructor for Deck. Creates a new deck
-	   * containing all 52 cards.
-	   */
-	  public Deck() {
-		  deckIndex = 0;
-		  int counter = 0; 
-		  deckOfCards = new Card[52];
-		  while (counter < 51)
-		  {
-			  for (String suit : SUITS) 
-			  {
-			      for ( String value : VALUES) 
-			      {
-			        Card newCard = new Card(suit, value);
+	/**
+	 * A basic constructor for Deck. Creates a new deck
+	 * containing all 52 cards.
+	 */
+	public Deck() {
+		deckIndex = 0;
+		int counter = 0; 
+		deckOfCards = new Card[52];
+		while (counter < 51) {
+			for (String suit : SUITS) {
+			    for ( String value : VALUES) {
+			    	Card newCard = new Card(suit, value);
 			        deckOfCards[counter] = newCard;
 			        counter++;     
-			      }
-			  }
-		  }
-	  }
+			    }
+			}
+		}
+	}
 	  
 	  /**
-	   * Shuffles the deck using the Fisher-Yates suffling algorithm.
+	   * Shuffles the deck using the Fisher-Yates shuffling algorithm.
+	   * 
+	   * Requirement: 1.5.2, 1.5.4
 	   */
 	  public void shuffleDeck() {
 		  //Fisher-Yates 
-	  
 		  Random rnd = ThreadLocalRandom.current();
 		    for (int i = deckOfCards.length - 1; i > 0; i--)
 		    {
@@ -59,7 +62,7 @@ public class Deck {
 	  
 	  /**
 	   * Allows a deck to be created with
-	   * a cetain number of predefined cards at the top.
+	   * a certain number of predefined cards at the top.
 	   */
 	  public void stackDeck(){
 		  String[] suit = new String[9];
@@ -105,17 +108,19 @@ public class Deck {
 	  /**
 	   * Resets the deck by "re-adding" any removed
 	   * cards and shuffling the deck.
+	   * 
+	   * Requirement: 1.5.3
 	   */
 	  public void resetDeck() {
 		  deckIndex = 0;
 		  this.shuffleDeck();
-//		  this.stackDeck();
-//		  System.out.println("*****Deck has been stacked, comment out lines 98-99 in deck class to remove deck stacking******");
 	  }
 	  
 	  /**
 	   * Draws one card from the deck.
 	   * @return		The next Card from the deck
+	   * 
+	   * Requirement: 1.5.1
 	   */
 	  public Card drawCard() {
 		  if (deckIndex == deckOfCards.length) {
@@ -132,37 +137,15 @@ public class Deck {
 			  System.out.println(card.toString());
 		  }
 	  }
-	  
-	  public Iterator<Pair> getPossiblePairsIterator() {
-		  return new Iterator<Pair>() {
-			  private int nextFirstCard = deckIndex;
-			  private int nextSecondCard = nextFirstCard + 1;
-			  
-			  @Override
-			  public boolean hasNext() {
-				  return nextFirstCard < deckOfCards.length - 1;
-			  }
-			  
-			  @Override
-			  public Pair next() {
-				  if (nextFirstCard >= deckOfCards.length - 1) { // No further pairs can be generated
-					  throw new NoSuchElementException("No further Pairs available.");
-				  } else if (nextSecondCard >= deckOfCards.length) {
-					  nextFirstCard++;
-					// Increment twice to point nextSecondCard to the next card to check after the current call to next()
-					  nextSecondCard = nextFirstCard + 1; 
-					  Pair next =  new Pair(deckOfCards[nextFirstCard], deckOfCards[nextSecondCard - 1]);
-					  return next;
-				  } else {
-					  Pair next = new Pair(deckOfCards[nextFirstCard], deckOfCards[nextSecondCard]);
-					  nextSecondCard++;
-					  return next;
-				  }
-			  }
-		  };
-	  }
 	
-	public Iterator<Card> getPossibleCardsIterator() {
+	  /**
+	   * A simple iterator for iterating through any
+	   * remaining cards in the deck
+	   * @return		An Iterator<card> that can iterate
+	   * 				through all the remaining cards in 
+	   * 				the deck
+	   */
+	  public Iterator<Card> getPossibleCardsIterator() {
 		  return new Iterator<Card>() {
 			  private int nextCard = deckIndex;
 			  

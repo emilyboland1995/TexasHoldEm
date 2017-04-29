@@ -3,6 +3,8 @@
  * of the highest possible hand, given a Card[] representing the current board cards combined 
  * with one player's hole cards. This numeric representation of the most powerful hand can be
  * used to quickly compare the strength of two respective hands.
+ * 
+ * Requirement Sets: 1.7.0
  */
 
 import java.util.*;
@@ -33,6 +35,8 @@ public class PostFlopHandRanker {
 	 * 							method
 	 * @return					A String of the hand represented by the
 	 * 							absoluteRank passed
+	 * 
+	 * Requirement: 1.7.3
 	 */
 	public static String getHandStringFromRank(long absoluteRank) {
 		int handType = (int) (absoluteRank / majorFactor);
@@ -115,24 +119,14 @@ public class PostFlopHandRanker {
 	}
 	
 	/**
-	 * Calculates and returns the relative strength of the best hand
-	 * present given one player's hole cards plus the existing board
-	 * cards.
-	 * @param hand		One player's hole cards plus any board cards
-	 * @return			The relative strength of the best hand
-	 * 					present.
-	 */
-	public static double getRelativeHandStrength(Card[] hand) {
-		return (double) getAbsoluteHandStrength(hand) / (914 * Math.multiplyExact((long) 10000, 10000));
-	}
-	
-	/**
 	 * Calculates and returns the strength of the strongest hand possible
 	 * given the player's hole cards plus any board cards.
 	 * @param holeCards		A Card[] containing one player's hole cards
 	 * @param boardCards	A Card[] containing all visible board cards
 	 * @return				A long containing a numeric representation of this
 	 * 						hand which representing its relative strength.
+	 * 
+	 * Requirement: 1.7.1
 	 */
 	public static long getAbsoluteHandStrength(Card[] holeCards, Card[] boardCards) {
 		return getAbsoluteHandStrength(createHand(holeCards, boardCards));
@@ -144,6 +138,8 @@ public class PostFlopHandRanker {
 	 * @param hand		An ArrayList<Card> containing one hand of cards
 	 * @return			A long containing a numeric representation of this
 	 * 					hand which representing its relative strength.
+	 * 
+	 * Requirement: 1.7.1
 	 */
 	public static long getAbsoluteHandStrength(ArrayList<Card> hand) {
 		return getAbsoluteHandStrength(createHandFromArrayList(hand));
@@ -156,6 +152,8 @@ public class PostFlopHandRanker {
 	 * @param boardCards	A Card[] containing all visible board cards
 	 * @return				A Card[] containing both the hole cards and the
 	 * 						visible board cards
+	 * 
+	 * Requirement: 1.7.1
 	 */
 	private static Card[] createHand(Card[] holeCards, Card[] boardCards) {
 		if (holeCards.length != 2 || boardCards.length < 3 || boardCards.length > 5) {
@@ -172,9 +170,13 @@ public class PostFlopHandRanker {
 		return hand;
 	}
 	/**
-	 * 
-	 * @param handList
-	 * @return
+	 * Creates a Card[] containing from an ArrayList<Card>. Removes any
+	 * null values.
+	 * @param handList		An ArrayList<Card> containing a single hand of cards (5-7)
+	 * @return				A Card array containing all Card objects contained
+	 * 						in handList, minus any null pointers, only if
+	 * 						the number of non-null Card objects in handList
+	 * 						is between 5 and 7
 	 */
 	private static Card[] createHandFromArrayList(ArrayList<Card> handList) {
 		int numCards = 0;
@@ -203,6 +205,8 @@ public class PostFlopHandRanker {
 	 * @param hand		One player's hole cards plus any board cards
 	 * @return			A long containing a numeric representation of this
 	 * 					hand which representing its relative strength.
+	 * 
+	 * Requirement: 1.7.1
 	 */
 	public static long getAbsoluteHandStrength(Card[] hand) {
 		int[] suitCounts = new int[4];
