@@ -12,6 +12,7 @@
  */
 
 import java.util.ArrayList;
+
 import javax.swing.JOptionPane;
 
 public class Game {
@@ -41,6 +42,7 @@ public class Game {
 	private int roundsAtEachBlind = 10;			//number of rounds at each blind level
 	private int blindLevel = 0;					//current blind level
 	private GUI gui = new GUI(this);			//gui
+	private static final int maxChips = Integer.MAX_VALUE/2 - 1;
 	
 	/**
 	 * Basic constructor for Game. 
@@ -138,9 +140,9 @@ public class Game {
 	
 	private boolean promptForStartingChips() {
 		int responseInt = 0;
-		while(responseInt < 500) {
+		while(responseInt < 500 || responseInt > maxChips) {
 			try{
-				String response = JOptionPane.showInputDialog("Enter starting chips (500 minimum): ", startingChips);
+				String response = JOptionPane.showInputDialog("Enter starting chips (500 - " + maxChips + "): ", startingChips);
 				if (response == null) {
 					return false;
 				} else {
@@ -616,14 +618,14 @@ public class Game {
     		lastToAct = dealer.getNextPlayer();
     	}
     	activePlayer = lastToAct.getNextPlayer();
-    	while((firstRound || !allSquare()) && playersInHand > 1) {
+    	while((firstRound || (!allSquare()) && playersInHand > 1)) {
     		// update firstRound flag
     		if (activePlayer == lastToAct) { //if we have cycled around to lastToAct, everyone has had opportunity to bet/raise
     			firstRound = false;
     		}
     		// Get action from player or Bot class
     		if (activePlayer instanceof Bot && bot.getChips() > 0) { //  verify bot and bot has chips
-    			if (chipsToCall > activePlayer.getChipsInPot() || player.getChips() > 0) { // action still required
+    			if (chipsToCall > activePlayer.getChipsInPot() || activePlayer.getChips() > 0) { // action still required
     				//get and process response from bot class
     				processBotAction(bot.getAction(this));
     			}
@@ -650,7 +652,9 @@ public class Game {
     	boolean returnVal = true;
     	Player firstPlayer = activePlayer;
     	Player tempPlayer = activePlayer;
-    	while(tempPlayer.getNextPlayer() != firstPlayer && returnVal) {
+    	boolean firstFlag = true;
+    	while((tempPlayer != firstPlayer && returnVal) || firstFlag) {
+    		firstFlag = false;
     		if (tempPlayer.getChipsInPot() != chipsToCall && tempPlayer.getChips() != 0 && tempPlayer.inHand()) {
     			returnVal = false;
     		}
@@ -667,6 +671,7 @@ public class Game {
      */
     private void processBotAction(BotMove move) {
     	boolean valid = false;
+    	System.out.println(move.toString());
     	switch(move.getMove()) {
 	    	case ALLIN:	if (activePlayer.getChips() > 0) {
 			    			if (chipsToCall - activePlayer.getChipsInPot() >= activePlayer.getChips()) { // calling an allin
@@ -689,7 +694,11 @@ public class Game {
 	    				valid = true;
 	    				break;	
 	    	case RAISE:	amt = move.getAmount();
-						raise(amt);
+	    				if (amt > minRaise){
+	    					raise(amt);
+	    				} else {
+	    					call();
+	    				}
 						valid = true;
 	    				break;
 	    	case FOLD:	fold();
@@ -751,7 +760,7 @@ public class Game {
 	    				valid = true;
 	    			}
     			} else if (userMove.equals(Move.RAISE)) {
-    				if ((activePlayer.getChips() - activePlayer.getChipsInPot()) > (chipsToCall + minRaise)) { // player wants to raise, verify they have fund to do so
+    				if ((activePlayer.getChips() - (chipsToCall - activePlayer.getChipsInPot())) >= minRaise) { // player wants to raise, verify they have fund to do so
 	    				valid = true;
 	    			}
     			} else if (userMove.equals(Move.FOLD)) {
