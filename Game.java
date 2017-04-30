@@ -377,8 +377,10 @@ public class Game {
     	if (raiseAmt < 1) {
     		return false; // Cannot raise by zero or a negative number of chips
     	}
-    	if (raiseAmt + chipsToCall - activePlayer.getChipsInPot() > 0 
-    			&& (raiseAmt >= minRaise || raiseAmt + (chipsToCall - activePlayer.getChipsInPot()) == activePlayer.getChips())) {
+    	if (raiseAmt + chipsToCall - activePlayer.getChipsInPot() >= activePlayer.getChips()){
+    		raiseAmt = activePlayer.getChips() - (chipsToCall - activePlayer.getChipsInPot());  //player was trying to raise more than they had, resetting to make them all in
+    	}
+    	if (raiseAmt >= minRaise || raiseAmt + (chipsToCall - activePlayer.getChipsInPot()) == activePlayer.getChips()) {
     		// adjust minRaise
     		if (raiseAmt > minRaise) {
     			minRaise = raiseAmt;
@@ -395,8 +397,7 @@ public class Game {
     	} else { //  player either has insufficient funds or the raiseAmt is not of sufficient size
     		return false;
     	}
-    }
-    
+    }    
     /**
      * Processes a Check.
      * @return		True if it is possible to check, false if otherwise.
@@ -668,7 +669,7 @@ public class Game {
     	boolean valid = false;
     	switch(move.getMove()) {
 	    	case ALLIN:	if (activePlayer.getChips() > 0) {
-			    			if (chipsToCall - activePlayer.getChipsInPot() > activePlayer.getChips()) { // calling an allin
+			    			if (chipsToCall - activePlayer.getChipsInPot() >= activePlayer.getChips()) { // calling an allin
 			    				processResponse(Move.CALL);
 			    				valid = true;
 			    			} else { // this is an actual raise
@@ -800,7 +801,7 @@ public class Game {
     	}
     	if (move.equals(Move.ALLIN)) { // player is going all in
     		if (activePlayer.getChips() > 0) {
-    			if (chipsToCall - activePlayer.getChipsInPot() > activePlayer.getChips()) { // calling an allin
+    			if (chipsToCall - activePlayer.getChipsInPot() >= activePlayer.getChips()) { // calling an allin
     				processResponse(Move.CALL);
     			} else { // this is an actual raise
     				raise(activePlayer.getChips() - (chipsToCall - activePlayer.getChipsInPot()));
