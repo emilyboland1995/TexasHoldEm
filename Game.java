@@ -534,6 +534,7 @@ public class Game {
     	boolean onceThrough = false;
     	Player prevPlayer;
     	
+    	gui.setDealerLabel(dealer);
     	if (stackedDeck != null) {
     		this.deck = stackedDeck;
     		createHand(true);
