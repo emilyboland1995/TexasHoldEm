@@ -419,7 +419,7 @@ public class GUI {
 	 * Disable only the Raise button
 	 */
 	public void disableRaise() {
-		btnRaise.setEnabled(true);
+		btnRaise.setEnabled(false);
 	}
 	/**
 	 * Disable only the All In button
