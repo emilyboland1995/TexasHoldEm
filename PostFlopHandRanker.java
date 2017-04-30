@@ -87,6 +87,7 @@ public class PostFlopHandRanker {
 					} else {
 						hand += " " + ranks[(rank - 1) % 13];
 					}
+					remainder -= rank * divisor;
 					divisor /= 100;
 				}
 				break;
