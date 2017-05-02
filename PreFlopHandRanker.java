@@ -6,7 +6,7 @@
  *  by playing 1,000,000 simplified games for each of 169 distinct possible starting hands and tracking
  *  the results, assuming both players play to showdown.
  *  
- *  Requirement Sets: 1.7.0
+ *  Requirement Sets: 1.8.0
  */
 public class PreFlopHandRanker {
 	private static final double[][] preFlopWinRateTable 
@@ -32,7 +32,7 @@ public class PreFlopHandRanker {
 	 * @return				A double containing the approximate rate at this the 
 	 * 						set of hole cards passed wins
 	 * 
-	 * Requirement: 1.7.2
+	 * Requirement: 1.8.2
 	 */
 	public static double getHoleCardWinRate(Card[] holeCards) {
 		if (holeCards.length != 2) {

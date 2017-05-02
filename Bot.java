@@ -6,7 +6,7 @@ import java.util.Random;
  * is the addition of the getAction method, which prompts the
  * bot to make a move based on current game conditions.
  * 
- * Requirement Sets: 1.0.0, 2.0.0
+ * Requirement Sets: 1.3.0, 2.2.0
  */
 
 public class Bot extends Player {
@@ -41,9 +41,101 @@ public class Bot extends Player {
 	 * @return			A String containing the move selected by
 	 * 					this instance of Bot
 	 * 
-	 * Requirements: 1.2.0, 1.2.3, 2.2.2
+	 * Requirements: 1.3.1, 1.3.2, 1.3.3, 2.2.2
 	 */
 	public BotMove getAction(Game state) {
+		double chipVariation = rand.nextDouble() - .5;
+		double aggressiveVariation = rand.nextDouble() / 5 - .1;
+		int foldEntries = 300 - ((int)(290 * aggressiveVariation));
+		int checkEntries = 300 - ((int)(290 * aggressiveVariation));
+		int betEntries = 300 + ((int)(290 * aggressiveVariation));
+		int raiseEntries = 300 + ((int)(290 * aggressiveVariation));
+		int callEntries = 400;
+		int chipsToCall;
+		double handStrength;
+		int standardRaise = ((int)(state.getBigBlind() * (4 + chipVariation)));
+		if (state.getBotChipsInPot() < state.getChipsToCall()) { //bot needs to fold, call, or raise
+			chipsToCall = state.getChipsToCall() - state.getBotChipsInPot();
+			if (state.getPot()/chipsToCall >=3) { //consider pot odds
+				for(int x = 0; x < state.getPot()/chipsToCall - 2; x++) {
+					foldEntries *= .9;
+					callEntries *= 1.1;
+				}
+			}
+		} else { // bot needs to check or bet
+			chipsToCall = 0;
+		}
+		if (state.hasFlopOccured()) {
+			handStrength = HandStrengthCalculator.getEffectiveHandStrengthOptimistic(state.getBotHoleCards(), state.getVisibleBoardCards());
+		} else { // flop has not occured
+			handStrength = PreFlopHandRanker.getHoleCardWinRate(state.getBotHoleCards());
+		}
+		if (Double.isNaN(handStrength)) { // Ensure handStrength is a valid double
+			handStrength = 0;
+		}
+		foldEntries *= (1.5 - handStrength);
+		checkEntries *= (1.5 - handStrength);
+		callEntries *= (.5 + handStrength);
+		raiseEntries *= (handStrength * 2);
+		betEntries *= (handStrength * 2);
+		if (!state.hasFlopOccured() && handStrength > .75) {
+			foldEntries *= 0;
+		} else if (handStrength > .9) {
+			foldEntries *= 0;
+		}
+		
+		if (chipsToCall>standardRaise * 1.5) { // significant call amount
+			foldEntries *= 1.5;
+			callEntries *= .75;
+		} else if (chipsToCall<standardRaise * .65) { // insignificant call amount
+			foldEntries *= .75;
+			callEntries *= 1.5;
+		}
+		if (state.getMinRaise() > standardRaise * 1.5) { // significant amount to raise
+			raiseEntries *= .75;
+			callEntries *= 1.5;
+		} else if (state.getMinRaise() < standardRaise * .65) { // insignificant raise
+			raiseEntries *= 1.25;
+			callEntries *= 1.25;
+			foldEntries *= .5;
+		}
+		if (standardRaise % 25 >= 13) {
+			standardRaise += 25 - standardRaise % 25;
+		} else {
+			standardRaise -= standardRaise % 25;
+		}
+		if (chipsToCall == 0) { // bot needs to check or bet
+			if (rand.nextInt(checkEntries + betEntries) <= checkEntries) {
+				return new BotMove(Game.Move.CHECK);
+			} else {
+				return new BotMove(Game.Move.BET,standardRaise);
+			}
+		} else { // bot needs to fold, call, or raise
+			int value = rand.nextInt(foldEntries + callEntries + raiseEntries);
+			if (value < foldEntries) {
+				return new BotMove(Game.Move.FOLD);				
+			} else if (value < foldEntries + callEntries) {
+				return new BotMove(Game.Move.CALL);
+			} else {
+				return new BotMove(Game.Move.RAISE,standardRaise);
+			}
+		}
+	}
+	
+	/**
+	 * Examines Bot's current hole cards and the state of the
+	 * game and selects an appropriate strategy.
+	 * 
+	 * Note: This method represents an obsolete betting strategy
+	 * and the new version of getAction should be used instead
+	 * 
+	 * @param state		The Game object currently in use
+	 * @return			A String containing the move selected by
+	 * 					this instance of Bot
+	 * 
+	 * Requirements: 1.3.1, 1.3.2, 2.2.2
+	 */
+	public BotMove getActionOLD(Game state) {
 		double choice = rand.nextDouble();
 		if (state.hasFlopOccured()) {
 			if (state.hasRiverOccured()) { // Final round of betting
@@ -125,7 +217,7 @@ public class Bot extends Player {
 						} else {
 							return new BotMove(Game.Move.CALL);
 						}
-					} else if (choice <= 0.7){
+					} else if (choice <= 0.7) {
 						return new BotMove(Game.Move.CALL);
 					} else {
 						return new BotMove(Game.Move.FOLD);
@@ -171,7 +263,7 @@ public class Bot extends Player {
 	 * Determines the strategy the bot will pursue based on the strength
 	 * of the bot's hole cards
 	 * 
-	 * Requirement: 1.2.3
+	 * Requirement: 1.3.3
 	 */
 	private void evaluatePreFlopStrength() {
 		double preFlopStrength = PreFlopHandRanker.getHoleCardWinRate(this.getHoleCards());

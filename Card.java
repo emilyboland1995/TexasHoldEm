@@ -6,14 +6,14 @@
  * any two cards, generate a hash code, and provide a String representation 
  * of the card.
  *
- * Requirement Sets: 1.8.0
+ * Requirement Sets: 1.9.0
  */
 
 public class Card {
 	private String cardRank; // A String representation of the card's rank
 	private String cardSuit; // A String representation of the card's suit
-	private int cardRankInt; //Ace=1, Jack=11, Queen=12, King=13
-	private int cardSuitInt; //Spades=1, Clubs=2, Hearts=3, Diamonds=4 
+	private int cardRankInt; // Ace=1, Jack=11, Queen=12, King=13
+	private int cardSuitInt; // Spades=1, Clubs=2, Hearts=3, Diamonds=4 
 
 	/**
 	 * A simple constructor that crates a new instance of Card of
@@ -23,7 +23,7 @@ public class Card {
 	 * @param value		A String representing the rank of the card
 	 * 					to be created
 	 * 
-	 * Requirement: 1.8.3
+	 * Requirement: 1.9.3
 	 */
 	public Card(String suit, String rank) {
 		cardSuit = suit;
@@ -34,7 +34,7 @@ public class Card {
 	/**
 	 * @return		A String representing the Card's rank
 	 * 
-	 * Requirement: 1.8.3
+	 * Requirement: 1.9.3
 	 */
 	public String getRankString() {
 	    return cardRank;
@@ -42,7 +42,7 @@ public class Card {
 	/**
 	 * @return		A String representing the Card's suit
 	 * 
-	 * Requirement: 1.8.3
+	 * Requirement: 1.9.3
 	 */
 	public String getSuitString() {
 	    return cardSuit;
@@ -50,7 +50,7 @@ public class Card {
 	/**
 	 * @return			The int associated with the Card's rank
 	 * 
-	 * Requirement: 1.8.2
+	 * Requirement: 1.9.2
 	 */
 	public int getRankInt() {
 		return cardRankInt;
@@ -58,7 +58,7 @@ public class Card {
 	/**
 	 * @return			The int associated with the Card's suit
 	 * 
-	 * Requirement: 1.8.2
+	 * Requirement: 1.9.2
 	 */
 	public int getSuitInt() {
 		return cardSuitInt;
@@ -109,7 +109,7 @@ public class Card {
 	 * based on its String rank
 	 * @return		An int representing the rank of the card (1-13)
 	 * 
-	 * Requirement: 1.8.2
+	 * Requirement: 1.9.2
 	 */
 	private int setRankInt() {
 		  //Print the integer value of the card ranking 
@@ -139,7 +139,7 @@ public class Card {
 	 * based on its String suit
 	 * @return		An int representing the suit of the card (1-4)
 	 * 
-	 * Requirement: 1.8.2
+	 * Requirement: 1.9.2
 	 */
 	  private int setSuitInt() {
 		  if (cardSuit.equals("Spades")) { // spades = 1 
@@ -160,7 +160,7 @@ public class Card {
 	   * @return		A String containing the Card's suit
 	   * 				and rank in string form
 	   * 
-	   * Requirement: 1.8.3
+	   * Requirement: 1.9.3
 	   */
 	  public String toString() {
 	    return String.format("%s of %s", cardRank, cardSuit);
@@ -171,7 +171,7 @@ public class Card {
 	   * @return		A String containing the Card's suit and rank
 	   * 				in int form
 	   * 
-	   * Requirement: 1.8.2
+	   * Requirement: 1.9.2
 	   */
 	  public String printIntVals() {
 	    return String.format(getRankInt() + " of " + getSuitInt());

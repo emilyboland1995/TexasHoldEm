@@ -4,7 +4,7 @@
  * shuffling, along with a some other utilities for working with
  * the deck.
  * 
- * Requirement Sets: 1.0.0
+ * Requirement Sets: 1.6.0
  */
 
 import java.util.HashSet;
@@ -45,7 +45,7 @@ public class Deck {
 	  /**
 	   * Shuffles the deck using the Fisher-Yates shuffling algorithm.
 	   * 
-	   * Requirement: 1.5.2, 1.5.4
+	   * Requirement: 1.6.2, 1.6.4
 	   */
 	  public void shuffleDeck() {
 		  //Fisher-Yates 
@@ -109,7 +109,7 @@ public class Deck {
 	   * Resets the deck by "re-adding" any removed
 	   * cards and shuffling the deck.
 	   * 
-	   * Requirement: 1.5.3
+	   * Requirement: 1.6.3
 	   */
 	  public void resetDeck() {
 		  deckIndex = 0;
@@ -120,7 +120,7 @@ public class Deck {
 	   * Draws one card from the deck.
 	   * @return		The next Card from the deck
 	   * 
-	   * Requirement: 1.5.1
+	   * Requirement: 1.6.1
 	   */
 	  public Card drawCard() {
 		  if (deckIndex == deckOfCards.length) {

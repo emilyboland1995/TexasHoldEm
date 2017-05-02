@@ -4,7 +4,7 @@
  * with one player's hole cards. This numeric representation of the most powerful hand can be
  * used to quickly compare the strength of two respective hands.
  * 
- * Requirement Sets: 1.7.0
+ * Requirement Sets: 1.8.0
  */
 
 import java.util.*;
@@ -36,7 +36,7 @@ public class PostFlopHandRanker {
 	 * @return					A String of the hand represented by the
 	 * 							absoluteRank passed
 	 * 
-	 * Requirement: 1.7.3
+	 * Requirement: 1.8.3
 	 */
 	public static String getHandStringFromRank(long absoluteRank) {
 		int handType = (int) (absoluteRank / majorFactor);
@@ -127,7 +127,7 @@ public class PostFlopHandRanker {
 	 * @return				A long containing a numeric representation of this
 	 * 						hand which representing its relative strength.
 	 * 
-	 * Requirement: 1.7.1
+	 * Requirement: 1.8.1
 	 */
 	public static long getAbsoluteHandStrength(Card[] holeCards, Card[] boardCards) {
 		return getAbsoluteHandStrength(createHand(holeCards, boardCards));
@@ -140,7 +140,7 @@ public class PostFlopHandRanker {
 	 * @return			A long containing a numeric representation of this
 	 * 					hand which representing its relative strength.
 	 * 
-	 * Requirement: 1.7.1
+	 * Requirement: 1.8.1
 	 */
 	public static long getAbsoluteHandStrength(ArrayList<Card> hand) {
 		return getAbsoluteHandStrength(createHandFromArrayList(hand));
@@ -154,7 +154,7 @@ public class PostFlopHandRanker {
 	 * @return				A Card[] containing both the hole cards and the
 	 * 						visible board cards
 	 * 
-	 * Requirement: 1.7.1
+	 * Requirement: 1.8.1
 	 */
 	private static Card[] createHand(Card[] holeCards, Card[] boardCards) {
 		if (holeCards.length != 2 || boardCards.length < 3 || boardCards.length > 5) {
@@ -207,7 +207,7 @@ public class PostFlopHandRanker {
 	 * @return			A long containing a numeric representation of this
 	 * 					hand which representing its relative strength.
 	 * 
-	 * Requirement: 1.7.1
+	 * Requirement: 1.8.1
 	 */
 	public static long getAbsoluteHandStrength(Card[] hand) {
 		int[] suitCounts = new int[4];

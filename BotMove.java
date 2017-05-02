@@ -4,6 +4,8 @@
  * by instances of the class Bot. Allows the move
  * type and, if applicable, the amount of chips
  * associated with the move to be accessed
+ * 
+ * Requirement: 1.2.3
  */
 
 public class BotMove {

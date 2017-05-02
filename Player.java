@@ -7,7 +7,7 @@
  * Each instance can be assigned a link to another instance of Player. This allows
  * a sort of linked list of players to be constructed.
  *
- * Requirement Sets: 1.6.0
+ * Requirement Sets: 1.7.0
  */
 
 public class Player {
@@ -81,7 +81,7 @@ public class Player {
 	 * @param playerName		A String that will serve
 	 * 							as the player's name.
 	 * 
-	 * Requirement: 1.6.1
+	 * Requirement: 1.7.1
 	 */
 	public void setPlayerName(String playerName) {
 		if (playerName == null) {
@@ -95,7 +95,7 @@ public class Player {
 	 * 				containing this
 	 * 				player's name
 	 * 
-	 * Requirement: 1.6.1
+	 * Requirement: 1.7.1
 	 */
 	public String getPlayerName(){
 		return this.playerName;
@@ -105,7 +105,7 @@ public class Player {
 	 * 				currently available
 	 * 				to the player
 	 * 
-	 * Requirement: 1.6.5
+	 * Requirement: 1.7.5
 	 */
 	public int getChips() {
 		return chips;
@@ -114,7 +114,7 @@ public class Player {
 	 * Set's the number of chips available to the player
 	 * @param chips
 	 * 
-	 * Requirement: 1.6.3
+	 * Requirement: 1.7.3
 	 */
 	public void setChips(int chips) {
 		if (chips < 0) {
@@ -127,7 +127,7 @@ public class Player {
 	 * 				this player has currently
 	 * 				invested in the pot
 	 * 
-	 * Requirement: 1.6.5
+	 * Requirement: 1.7.5
 	 */
 	public int getChipsInPot() {
 		return chipsInPot;
@@ -138,7 +138,7 @@ public class Player {
 	 * 						this player currently
 	 * 						has invested in the pot
 	 * 
-	 * Requirement: 1.6.4
+	 * Requirement: 1.7.4
 	 */
 	public void setChipsInPot(int chipsInPot) {
 		if (chipsInPot < 0) {
@@ -150,7 +150,7 @@ public class Player {
 	 * @return		A Card[] containing the hole
 	 * 				cards for this player
 	 * 
-	 * Requirement: 1.6.7
+	 * Requirement: 1.7.7
 	 */
 	public Card[] getHoleCards() {
 		return holeCards;
@@ -159,7 +159,7 @@ public class Player {
 	 * Sets the player's current hole cards
 	 * @param holeCards
 	 * 
-	 * Requirement: 1.6.7
+	 * Requirement: 1.7.7
 	 */
 	public void setHoleCards(Card first, Card second) {
 		if (first == null || second == null) {

@@ -12,7 +12,6 @@
  */
 
 import java.util.ArrayList;
-
 import javax.swing.JOptionPane;
 
 public class Game {
@@ -20,12 +19,13 @@ public class Game {
 	// Requirement: 1.4.0
 	public static enum Move {FOLD, CHECK, CALL, BET, RAISE, NOMOVE, ALLIN};
 	private final int defaultStartingChips = 2000;
-
+	private final int MAX_STARTING_CHIPS = (Integer.MAX_VALUE) - 1 / 2;
+	
 	private int pot;							// current chip value in pot
 	private int smallBlind; 					// current small blind
 	private int bigBlind; 						// big blind value
 	private int hands;							// count of hands played
-	public int minRaise;						// identifies min raise amount
+	private int minRaise;						// identifies min raise amount
 	private int chipsToCall;					// identifies the total amount in chips a player needs in pot to call, this amount is cumulative
 	private Card[] boardCards;					// 5 cards holding for board
 	private boolean flopFlag;					// flags whether flop is visible
@@ -42,7 +42,6 @@ public class Game {
 	private int roundsAtEachBlind = 10;			//number of rounds at each blind level
 	private int blindLevel = 0;					//current blind level
 	private GUI gui = new GUI(this);			//gui
-	private static final int maxChips = Integer.MAX_VALUE/2 - 1;
 	
 	/**
 	 * Basic constructor for Game. 
@@ -140,15 +139,16 @@ public class Game {
 	
 	private boolean promptForStartingChips() {
 		int responseInt = 0;
-		while(responseInt < 500 || responseInt > maxChips) {
+		while(responseInt < 500 || responseInt > this.MAX_STARTING_CHIPS) {
 			try{
-				String response = JOptionPane.showInputDialog("Enter starting chips (500 - " + maxChips + "): ", startingChips);
+				String response = JOptionPane.showInputDialog("Enter starting chips (500 - " + this.MAX_STARTING_CHIPS + "): ", startingChips);
 				if (response == null) {
 					return false;
 				} else {
 					responseInt = Integer.parseInt(response);
 				}
 			} catch(NumberFormatException ex) {
+				
 			}
 		}
 		this.startingChips = responseInt;
@@ -200,6 +200,8 @@ public class Game {
 	 * This method continues to play hands of Texas Hold 'Em
 	 * until only one player has any chips or the user specifies
 	 * that they do not want to pay anymore.
+	 * 
+	 * Requirement: 1.1.1
 	 */
 	public void playGame() {
 	    while (hasChips() && (this.hands == 0 || userWantsToContinue())) {
@@ -209,7 +211,7 @@ public class Game {
 	    	JOptionPane.showMessageDialog(null, "You Win!!");
 	    } else if (player.getChips() == 0){
 	    	JOptionPane.showMessageDialog(null, "You Lose!!");
-	    } else {
+	    	} else {
 	    	JOptionPane.showMessageDialog(null, "See you soon!");
 	    }
 	}
@@ -311,7 +313,7 @@ public class Game {
 		processBlinds(); // Handle blinds
 		
 		// ******************reset initial values for hands**************************
-//		chipsToCall = bigBlind;
+		//chipsToCall = bigBlind;
 		minRaise = bigBlind;
 		flopFlag = false;
 		turnFlag = false;
@@ -322,7 +324,9 @@ public class Game {
 	}
 	
 	/**
-	 * Handles the blinds for a game containing two players: the user and a bot.
+	 * Handles the blinds for a game containing two players: the user and one bot.
+	 * 
+	 * 2.3.1
 	 */
 	private void processBlinds() {
 		// ******************blinds*************************************
@@ -353,7 +357,7 @@ public class Game {
 			pot = pot + activePlayer.getChips();
 			activePlayer.setChipsInPot(activePlayer.getChips());
 			gui.appendTextAreaLine(activePlayer.getPlayerName() + " has gone all in with big blind of: " + activePlayer.getChips());
-			if(activePlayer.getChips()>chipsToCall){
+			if (activePlayer.getChips() > chipsToCall) {
 				chipsToCall = activePlayer.getChips();
 			}
 			activePlayer.setChips(0);
@@ -364,7 +368,7 @@ public class Game {
 	/**
 	 * Processes a Fold.
 	 * 
-	 * Requirement: 1.1.1
+	 * Requirement: 1.2.1
 	 */
     public void fold() {
     	activePlayer.setInHand(false);
@@ -380,44 +384,46 @@ public class Game {
      * Processes a Raise. Attempts to handle a raise request by the
      * active player. Verifies that it is possible for the player to
      * raise by the specified amount and takes the appropriate action.
-     * @param raiseAmt		The amount of chips to raise.
+     * @param raiseOrBetAmt	The amount of chips to raise.
      * @return				True if the raise was successful, false
      * 						if otherwise (for instance, if the active
      * 						player has insufficient chips to cover the
      * 						raise amount specified).
      * 
-     * Requirement: 1.1.2, 1.1.5, 1.1.6
+     * Requirement: 1.2.2, 1.2.5, 1.2.6
      */
-    public boolean raise(int raiseAmt) { // returns true if successful
-    	if (raiseAmt < 1) {
+    public boolean raiseOrBet(int raiseOrBetAmt) { // returns true if successful
+    	if (raiseOrBetAmt < 1) {
     		return false; // Cannot raise by zero or a negative number of chips
     	}
-    	if (raiseAmt + chipsToCall - activePlayer.getChipsInPot() >= activePlayer.getChips()){
-    		raiseAmt = activePlayer.getChips() - (chipsToCall - activePlayer.getChipsInPot());  //player was trying to raise more than they had, resetting to make them all in
+    	if (raiseOrBetAmt + chipsToCall - activePlayer.getChipsInPot() >= activePlayer.getChips()){
+    		// player was trying to raise more than they had, resetting to make them all in
+    		raiseOrBetAmt = activePlayer.getChips() - (chipsToCall - activePlayer.getChipsInPot());  
     	}
-    	if (raiseAmt >= minRaise || raiseAmt + (chipsToCall - activePlayer.getChipsInPot()) == activePlayer.getChips()) {
+    	if (raiseOrBetAmt >= minRaise || raiseOrBetAmt + (chipsToCall - activePlayer.getChipsInPot()) == activePlayer.getChips()) {
     		// adjust minRaise
-    		if (raiseAmt > minRaise) {
-    			minRaise = raiseAmt;
+    		if (raiseOrBetAmt > minRaise) {
+    			minRaise = raiseOrBetAmt;
     		}
     		// adjust chipsToCall
-    		chipsToCall = chipsToCall + raiseAmt;
+    		chipsToCall = chipsToCall + raiseOrBetAmt;
     		pot = pot + (chipsToCall - activePlayer.getChipsInPot());
     		// adjust players chip count setChips(current stack - (new chips going in pot))
     		activePlayer.setChips(activePlayer.getChips() - (chipsToCall - activePlayer.getChipsInPot()) );
     		// adjust players chip in pot count
     		activePlayer.setChipsInPot(chipsToCall);
-    		gui.appendTextAreaLine(activePlayer.toString() + " has raised the pot " + raiseAmt);
+    		gui.appendTextAreaLine(activePlayer.toString() + " has raised the pot " + raiseOrBetAmt);
     		return true;
-    	} else { //  player either has insufficient funds or the raiseAmt is not of sufficient size
+    	} else { //  player either has insufficient funds or the raiseOrBetAmt is not of sufficient size
     		return false;
     	}
-    }    
+    }
+    
     /**
      * Processes a Check.
      * @return		True if it is possible to check, false if otherwise.
      * 
-     * Requirement: 1.1.4
+     * Requirement: 1.2.4
      */
    	public boolean check() { // returns true if check successful
     	if (activePlayer.getChipsInPot() == chipsToCall) { // ok to check
@@ -433,7 +439,7 @@ public class Game {
      * the player is capable of calling without going all-in and
      * adjusts the game and player states accordingly.
      * 
-     * Requirement: 1.1.3
+     * Requirement: 1.2.3
      */
     private void call() {
     	int amtToCall = chipsToCall - activePlayer.getChipsInPot();
@@ -458,6 +464,8 @@ public class Game {
      * pot goes to the player with the strongest hand, or
      * is split in the event that both hands are exactly
      * equal.
+     * 
+     * Requirement: 1.1.3
      */
     private void disperseChips() {
     	int maxChipsToWin = 0;
@@ -505,7 +513,12 @@ public class Game {
     	botRevealed = true;
     	gui.showBotCards();
     }
-    
+    /**
+     * @return		True if the bot's cards
+     * 				should be visible to 
+     * 				other players, false if
+     * 				otherwise
+     */
     public boolean botRevealed() {
     	return this.botRevealed;
     }
@@ -529,6 +542,8 @@ public class Game {
     
     /**
      * Plays through one hand of Texas Hold 'Em Poker
+     * 
+     * Requirement: 1.1.2
      */
     private void playHand() {
     	playHand(null);
@@ -542,6 +557,8 @@ public class Game {
      * 						or "stacked" deck. If the reference is
      * 						null, playHand will play a normal hand
      * 						using the existing deck in game.
+     * 
+     * Requirement: 1.1.2
      */
     private void playHand(Deck stackedDeck) {
     	boolean onceThrough = false;
@@ -590,25 +607,40 @@ public class Game {
     	// advance dealer and keep going
     	dealer = dealer.getNextPlayer();
     	// increment hand counter
-    	hands++;
+    	this.hands++;
     }
     /**
      * Displays information about the player's current 
      * hand, given the currently known board cards. 
      * More information about the information provided
      * can be found be referencing the individual methods
-     * called from the HandStrenthCalculator class.
+     * called from the HandStrenthCalculator and
+     * PreFlopHandRanker classes. The statistics displayed
+     * are as follows:
+     * 
+     * Pre-flop: Displays Win rate
+     * 
+     * Post-flop, pre-river: Displays HS, EHS, and EHS'
+     * 
+     * Post-flop, river: Displays HS
+     * 
+     * Requirements: 2.4.1, 2.4.2, 2.4.3
      */
     private void showUserStatistics() {
 		StringBuilder userStats = new StringBuilder();
 		userStats.append("**** Stats for your current hand ****\n");
 		if (this.hasFlopOccured()) {
-			userStats.append(String.format("EHS: %.2f", 
-					100 * HandStrengthCalculator.getEffectiveHandStrength(player.getHoleCards(), this.getVisibleBoardCards())) + "\n");
-			userStats.append(String.format("EHS': %.2f", 
-					100 * HandStrengthCalculator.getEffectiveHandStrengthOptimistic(player.getHoleCards(), this.getVisibleBoardCards())) + "\n");
-			userStats.append(String.format("Hand Strength: %.2f", 
-					100 * HandStrengthCalculator.getHandStrength(player.getHoleCards(), this.getVisibleBoardCards())) + "\n");
+			if (this.hasRiverOccured()) { // River has occurred
+				userStats.append(String.format("Hand Strength: %.2f", 
+						100 * HandStrengthCalculator.getHandStrength(player.getHoleCards(), this.getVisibleBoardCards())) + "%\n");
+			} else { // River has not occurred
+				userStats.append(String.format("EHS: %.2f", 
+						100 * HandStrengthCalculator.getEffectiveHandStrength(player.getHoleCards(), this.getVisibleBoardCards())) + "%\n");
+				userStats.append(String.format("EHS': %.2f", 
+						100 * HandStrengthCalculator.getEffectiveHandStrengthOptimistic(player.getHoleCards(), this.getVisibleBoardCards())) + "%\n");
+				userStats.append(String.format("Hand Strength: %.2f", 
+						100 * HandStrengthCalculator.getHandStrength(player.getHoleCards(), this.getVisibleBoardCards())) + "%\n");
+			}
 		} else { // Flop has not occurred
 			userStats.append(String.format("Estimated Win Rate For Your Hole Cards: %.2f",
 					100 * PreFlopHandRanker.getHoleCardWinRate(player.getHoleCards())) + "%\n");
@@ -638,13 +670,13 @@ public class Game {
     			firstRound = false;
     		}
     		// Get action from player or Bot class
-    		if (activePlayer instanceof Bot){
-    			if(bot.getChips() > 0 && (player.getChips() > 0 || activePlayer.getChipsInPot() < chipsToCall)) { //  verify bot and bot has chips
-	    			if (chipsToCall > activePlayer.getChipsInPot() || activePlayer.getChips() > 0) { // action still required
-	    				//get and process response from bot class
-	    				processBotAction(bot.getAction(this));
-	    			}
-    			}
+    		if (activePlayer instanceof Bot) { // Current player is the bot
+    			if(bot.getChips() > 0 && (player.getChips() > 0 || activePlayer.getChipsInPot() < chipsToCall)) { //  verify bot has chips
+    				if (chipsToCall > activePlayer.getChipsInPot() || activePlayer.getChips() > 0) { // action still required
+    					//get and process response from bot class
+    			 	    processBotAction(bot.getAction(this));
+    				}
+    			 }
     		} else { //  this is a human player
     			// verify not all in
     			gui.updateView();
@@ -675,7 +707,7 @@ public class Game {
     			returnVal = false;
     		}
     		tempPlayer = tempPlayer.getNextPlayer();
-    	}    
+    	}    	
     	return returnVal;
     }
     
@@ -687,23 +719,24 @@ public class Game {
      */
     private void processBotAction(BotMove move) {
     	boolean valid = false;
-//    	System.out.println(move.toString());
     	switch(move.getMove()) {
 	    	case ALLIN:	if (activePlayer.getChips() > 0) {
 			    			if (chipsToCall - activePlayer.getChipsInPot() >= activePlayer.getChips()) { // calling an allin
 			    				processResponse(Move.CALL);
 			    				valid = true;
 			    			} else { // this is an actual raise
-			    				raise(activePlayer.getChips() - (chipsToCall - activePlayer.getChipsInPot()));
+			    				raiseOrBet(activePlayer.getChips() - (chipsToCall - activePlayer.getChipsInPot()));
 			    				valid = true;
 			    			}
 			    		}    
 	    				break;	
 	    	case BET: 	int amt = move.getAmount();
-	    				raise(amt);
+	    				raiseOrBet(amt);
 	    				valid = true;
 	    				break;	
-	    	case CHECK:	check();
+	    	case CHECK:	if (!check()) {
+	    					call(); // Unable to check, must call
+	    				}
 	    				valid = true;
 	    				break;
 	    	case CALL:	call();
@@ -711,7 +744,7 @@ public class Game {
 	    				break;	
 	    	case RAISE:	amt = move.getAmount();
 	    				if (amt > minRaise){
-	    					raise(amt);
+	    					raiseOrBet(amt);
 	    				} else {
 	    					call();
 	    				}
@@ -776,7 +809,7 @@ public class Game {
 	    				valid = true;
 	    			}
     			} else if (userMove.equals(Move.RAISE)) {
-    				if ((activePlayer.getChips() - (chipsToCall - activePlayer.getChipsInPot())) >= minRaise) { // player wants to raise, verify they have fund to do so
+    				if ((activePlayer.getChips() - (chipsToCall - activePlayer.getChipsInPot())) >= minRaise) { // player wants to raise, verify they have funds to do so
 	    				valid = true;
 	    			}
     			} else if (userMove.equals(Move.FOLD)) {
@@ -798,8 +831,7 @@ public class Game {
     
     /**
      * This method handles user responses by making the
-     * move the player requested. Assumes r contains a
-     * value selection.
+     * move the player requested.
      * @param r		The response provided by the user
      * @return		True if a move is made, false if
      * 				otherwise
@@ -818,7 +850,7 @@ public class Game {
         			amt = Integer.parseInt(strAmt);
         			
         			if (amt >= minRaise && amt <= (activePlayer.getChips() - (chipsToCall - activePlayer.getChipsInPot()))) {
-        				raise(amt);
+        				raiseOrBet(amt);
         				valid = true;
         			}
     			}
@@ -829,7 +861,7 @@ public class Game {
     			if (chipsToCall - activePlayer.getChipsInPot() >= activePlayer.getChips()) { // calling an allin
     				processResponse(Move.CALL);
     			} else { // this is an actual raise
-    				raise(activePlayer.getChips() - (chipsToCall - activePlayer.getChipsInPot()));
+    				raiseOrBet(activePlayer.getChips() - (chipsToCall - activePlayer.getChipsInPot()));
     			}
     		}    		
     	}
@@ -1054,5 +1086,11 @@ public class Game {
 		} else {
 			return this.player.getChipsInPot();
 		}
+	}
+	/**
+	 * @return		The minimum raiseOrBet amount
+	 */
+	public int getMinRaise() {
+		return this.minRaise;
 	}
 }
