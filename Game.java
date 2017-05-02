@@ -19,13 +19,13 @@ public class Game {
 	
 	// Requirement: 1.4.0
 	public static enum Move {FOLD, CHECK, CALL, BET, RAISE, NOMOVE, ALLIN};
-	private final int defaultStartingChips = 1000;
+	private final int defaultStartingChips = 2000;
 
 	private int pot;							// current chip value in pot
 	private int smallBlind; 					// current small blind
 	private int bigBlind; 						// big blind value
 	private int hands;							// count of hands played
-	private int minRaise;						// identifies min raise amount
+	public int minRaise;						// identifies min raise amount
 	private int chipsToCall;					// identifies the total amount in chips a player needs in pot to call, this amount is cumulative
 	private Card[] boardCards;					// 5 cards holding for board
 	private boolean flopFlag;					// flags whether flop is visible
@@ -205,6 +205,13 @@ public class Game {
 	    while (hasChips() && (this.hands == 0 || userWantsToContinue())) {
 	    	playHand(); // Play hand
 	    }
+	    if(bot.getChips() == 0){
+	    	JOptionPane.showMessageDialog(null, "You Win!!");
+	    } else if (player.getChips() == 0){
+	    	JOptionPane.showMessageDialog(null, "You Lose!!");
+	    } else {
+	    	JOptionPane.showMessageDialog(null, "See you soon!");
+	    }
 	}
 	
 	/**
@@ -304,7 +311,7 @@ public class Game {
 		processBlinds(); // Handle blinds
 		
 		// ******************reset initial values for hands**************************
-		chipsToCall = bigBlind;
+//		chipsToCall = bigBlind;
 		minRaise = bigBlind;
 		flopFlag = false;
 		turnFlag = false;
@@ -321,28 +328,34 @@ public class Game {
 		// ******************blinds*************************************
 		// this is configured for 2 players, if we add players we'll need to adjust logic
 		// small blind (for 2 players this is the dealer)
-		if (dealer.getChips() > smallBlind) { //  dealer can cover small blind
+		if (dealer.getChips() >= smallBlind) { //  dealer can cover small blind
 			pot = smallBlind;
 			dealer.setChipsInPot(smallBlind);
 			dealer.setChips(dealer.getChips() - smallBlind);
+			chipsToCall = smallBlind;
 			gui.appendTextAreaLine(dealer.getPlayerName() + " has posted small blind of: " + smallBlind);
 		} else { //  dealer cannot cover small blind
 			pot = dealer.getChips();
 			dealer.setChipsInPot(dealer.getChips());
 			gui.appendTextAreaLine(dealer.getPlayerName() + " goes all in with small blind: " + dealer.getChips());
+			chipsToCall = dealer.getChips();
 			dealer.setChips(0);
 		}
 		// big blind (for 2 players this is the player that is not the dealer)
 		activePlayer = dealer.getNextPlayer();
-		if (activePlayer.getChips() > bigBlind) { //  player can cover bigBlind
+		if (activePlayer.getChips() >= bigBlind) { //  player can cover bigBlind
 			pot = pot + bigBlind;
 			activePlayer.setChipsInPot(bigBlind);
 			activePlayer.setChips(activePlayer.getChips() - bigBlind);
+			chipsToCall = bigBlind;
 			gui.appendTextAreaLine(activePlayer.getPlayerName() + " has posted big blind of: " + bigBlind);
 		} else { //  Player cannot cover bigBlind
 			pot = pot + activePlayer.getChips();
 			activePlayer.setChipsInPot(activePlayer.getChips());
 			gui.appendTextAreaLine(activePlayer.getPlayerName() + " has gone all in with big blind of: " + activePlayer.getChips());
+			if(activePlayer.getChips()>chipsToCall){
+				chipsToCall = activePlayer.getChips();
+			}
 			activePlayer.setChips(0);
 		}
 		// ******************end blinds***********************************
@@ -619,16 +632,18 @@ public class Game {
     		lastToAct = dealer.getNextPlayer();
     	}
     	activePlayer = lastToAct.getNextPlayer();
-    	while((firstRound || (!allSquare()) && playersInHand > 1)) {
+    	while((firstRound || !allSquare()) && playersInHand > 1) {
     		// update firstRound flag
     		if (activePlayer == lastToAct) { //if we have cycled around to lastToAct, everyone has had opportunity to bet/raise
     			firstRound = false;
     		}
     		// Get action from player or Bot class
-    		if (activePlayer instanceof Bot && bot.getChips() > 0) { //  verify bot and bot has chips
-    			if (chipsToCall > activePlayer.getChipsInPot() || activePlayer.getChips() > 0) { // action still required
-    				//get and process response from bot class
-    				processBotAction(bot.getAction(this));
+    		if (activePlayer instanceof Bot){
+    			if(bot.getChips() > 0 && (player.getChips() > 0 || activePlayer.getChipsInPot() < chipsToCall)) { //  verify bot and bot has chips
+	    			if (chipsToCall > activePlayer.getChipsInPot() || activePlayer.getChips() > 0) { // action still required
+	    				//get and process response from bot class
+	    				processBotAction(bot.getAction(this));
+	    			}
     			}
     		} else { //  this is a human player
     			// verify not all in
@@ -660,7 +675,7 @@ public class Game {
     			returnVal = false;
     		}
     		tempPlayer = tempPlayer.getNextPlayer();
-    	}    	
+    	}    
     	return returnVal;
     }
     
@@ -672,7 +687,7 @@ public class Game {
      */
     private void processBotAction(BotMove move) {
     	boolean valid = false;
-    	System.out.println(move.toString());
+//    	System.out.println(move.toString());
     	switch(move.getMove()) {
 	    	case ALLIN:	if (activePlayer.getChips() > 0) {
 			    			if (chipsToCall - activePlayer.getChipsInPot() >= activePlayer.getChips()) { // calling an allin

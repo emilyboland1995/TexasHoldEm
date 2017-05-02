@@ -43,21 +43,27 @@ public class Bot extends Player {
 	public BotMove getAction(Game state) {
 		double chipVariation = rand.nextDouble() - .5;
 		double aggressiveVariation = rand.nextDouble()/5 - .1;
-		int foldEntries = 300 - ((int)(300 * aggressiveVariation));
-		int checkEntries = 300 - ((int)(300 * aggressiveVariation));
-		int betEntries = 300 + ((int)(300 * aggressiveVariation));
-		int raiseEntries = 300 + ((int)(300 * aggressiveVariation));
+		int foldEntries = 300 - ((int)(290 * aggressiveVariation));
+		int checkEntries = 300 - ((int)(290 * aggressiveVariation));
+		int betEntries = 300 + ((int)(290 * aggressiveVariation));
+		int raiseEntries = 300 + ((int)(290 * aggressiveVariation));
 		int callEntries = 400;
 		int chipsToCall;
 		double handStrength;
 		int standardRaise = ((int)(state.getBigBlind() * (4 + chipVariation)));
 		if(state.getBotChipsInPot() < state.getChipsToCall()){//bot needs to fold, call, or raise
 			chipsToCall = state.getChipsToCall() - state.getBotChipsInPot();
+			if(state.getPot()/chipsToCall >=3){//consider pot odds
+				for(int x = 0; x < state.getPot()/chipsToCall - 2; x++){
+					foldEntries *= .9;
+					callEntries *= 1.1;
+				}
+			}
 		} else {//bot needs to check or bet
 			chipsToCall = 0;
 		}
 		if(state.hasFlopOccured()){
-			handStrength = HandStrengthCalculator.getEffectiveHandStrength(state.getBotHoleCards(), state.getVisibleBoardCards());
+			handStrength = HandStrengthCalculator.getEffectiveHandStrengthOptimistic(state.getBotHoleCards(), state.getVisibleBoardCards());
 		} else {//flop has not occured
 			handStrength = PreFlopHandRanker.getHoleCardWinRate(state.getBotHoleCards());
 		}
@@ -69,6 +75,11 @@ public class Bot extends Player {
 		callEntries *= (.5 + handStrength);
 		raiseEntries *= (handStrength * 2);
 		betEntries *= (handStrength * 2);
+		if(!state.hasFlopOccured() && handStrength > .75){
+			foldEntries *= 0;
+		} else if(handStrength > .9){
+			foldEntries *= 0;
+		}
 		
 		if(chipsToCall>standardRaise * 1.5){//significant call amount
 			foldEntries *= 1.5;
@@ -85,13 +96,11 @@ public class Bot extends Player {
 			callEntries *= 1.25;
 			foldEntries *= .5;
 		}
-		System.out.println("Fold: " + foldEntries);
-		System.out.println("Call: " + callEntries);
-		System.out.println("Raise: " + raiseEntries);
-		System.out.println("Check: " + checkEntries);
-		System.out.println("Bet: " + betEntries);
-		System.out.println("Aggressive Variation: " + aggressiveVariation);
-		System.out.println("HandStr: " + handStrength);
+		if(standardRaise%25 >= 13){
+			standardRaise += 25 - standardRaise%25;
+		} else {
+			standardRaise -= standardRaise%25;
+		}
 		if(chipsToCall == 0){//bot needs to check or bet
 			if(rand.nextInt(checkEntries + betEntries) <= checkEntries){
 				return new BotMove(Game.Move.CHECK);
