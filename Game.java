@@ -877,7 +877,11 @@ public class Game {
     		int amt = 0;
     		String strAmt;
     		while(!valid) {
-    			strAmt = JOptionPane.showInputDialog("Enter amount to raise (" + minRaise + " - " 
+    			String promptType = "bet"; // Show bet prompt by default
+    			if (move.equals(Move.RAISE)) { // Show raise prompt if the move type is a raise
+    				promptType = "raise";
+    			}
+    			strAmt = JOptionPane.showInputDialog("Enter amount to " + promptType + " (" + minRaise + " - " 
     					    					+ (activePlayer.getChips() - (chipsToCall - activePlayer.getChipsInPot()) + ")"), minRaise);
     			if (strAmt == null) {
     				return false; // User cancelled
