@@ -47,6 +47,7 @@ public class GUI {
 	private JLabel pot;
 	private JLabel chipsToCall;
 	private JLabel userPrompt;
+	private JLabel dealerLabel;
 	
 	// Buttons that allow the user to
 	// perform all available betting actions
@@ -252,6 +253,12 @@ public class GUI {
 		userPrompt.setFont(new Font("Tahoma", Font.BOLD, 14));
 		userPrompt.setBounds(340, 150, 120, 14);
 		frmTexasHoldem.getContentPane().add(userPrompt);
+		
+		dealerLabel = new JLabel("DEALER");
+		dealerLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		dealerLabel.setFont(new Font("Tahoma", Font.BOLD, 14));
+		dealerLabel.setBounds(650, 50, 120, 14);
+		frmTexasHoldem.getContentPane().add(dealerLabel);
 		
 		
 		// Requirement: 3.1.2
@@ -726,5 +733,13 @@ public class GUI {
 		selectedOption = JOptionPane.showOptionDialog(frmTexasHoldem, "Please Select One of the Following Options:", 
 				"Start Menu", JOptionPane.YES_NO_OPTION, JOptionPane.DEFAULT_OPTION, null, startMenuOptions, null);
 		return selectedOption;
+	}
+	public void setDealerLabel(Player thisPlayer){
+		if(thisPlayer instanceof Bot){
+			dealerLabel.setBounds(650, 50, 120, 14);
+		} else {
+			dealerLabel.setBounds(150, 50, 120, 14);
+		}
+		
 	}
 }
