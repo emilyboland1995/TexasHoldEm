@@ -44,9 +44,26 @@ public class Game {
 	private GUI gui = new GUI(this);			//gui
 	
 	/**
-	 * Basic constructor for Game. 
+	 * Basic constructor for Game. Creates a new
+	 * instance of game using default values.
 	 */
 	public Game() {
+		this.setInitialGameState();
+	}
+	/**
+	 * Resets this instance of Game to default values
+	 * that would be otherwise displayed initially.
+	 * Prompts the user with a start menu
+	 */
+	public void resetGame() {
+		this.setInitialGameState();
+	}
+	/**
+	 * Sets initial values and prompts the
+	 * user with a start menu
+	 */
+	private void setInitialGameState() {
+		hands = 0;
 		boardCards = new Card[5];
 		pot = 0;
 		smallBlind = 25;
@@ -69,10 +86,9 @@ public class Game {
 		player.setNextPlayer(bot);
 		
 		// Setup initial board cards
-		gui.updateBoardCards();
-		
-		
+		gui.updateView();
 	}
+	
 	/**
 	 * Displays a start menu for the user which prompts the user to
 	 * select from one of four options: Start game, set starting chips,
@@ -195,6 +211,25 @@ public class Game {
 		}
 		JOptionPane.showMessageDialog(null,"***** Blinds are now " + smallBlind + " / " + bigBlind + "*****");
 	}
+	/**
+	 * Continues to play whole games of No LImits
+	 * Texas Hold 'Em until the player requests to
+	 * quit. Assumes initial values were set during
+	 * construction of Game and start menu has already
+	 * been displayed once
+	 * 
+	 * Requirement: 1.1.4
+	 */
+	public void playGames() {
+		playGame();
+		while (JOptionPane.showConfirmDialog(null, "Do you want to play another game?", "New Game", 
+				JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == 0) {
+			resetGame();
+			playGame();
+		}
+		JOptionPane.showMessageDialog(null, "Thanks for playing ETCetera's No Limits Texas Hold 'Em!");
+		System.exit(0); // Quit game
+	}
 
 	/**
 	 * This method continues to play hands of Texas Hold 'Em
@@ -207,12 +242,12 @@ public class Game {
 	    while (hasChips() && (this.hands == 0 || userWantsToContinue())) {
 	    	playHand(); // Play hand
 	    }
-	    if(bot.getChips() == 0){
+	    if(bot.getChips() == 0) {
 	    	JOptionPane.showMessageDialog(null, "You Win!!");
-	    } else if (player.getChips() == 0){
+	    } else if (player.getChips() == 0) {
 	    	JOptionPane.showMessageDialog(null, "You Lose!!");
-	    	} else {
-	    	JOptionPane.showMessageDialog(null, "See you soon!");
+	    } else {
+	    	JOptionPane.showMessageDialog(null, "Thanks for playing!");
 	    }
 	}
 	
