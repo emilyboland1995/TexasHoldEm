@@ -19,7 +19,7 @@ public class Game {
 	// Requirement: 1.4.0
 	public static enum Move {FOLD, CHECK, CALL, BET, RAISE, NOMOVE, ALLIN};
 	private final int defaultStartingChips = 2000;
-	private final int MAX_STARTING_CHIPS = (Integer.MAX_VALUE) - 1 / 2;
+	private final int MAX_STARTING_CHIPS = ((Integer.MAX_VALUE) - 1) / 2;
 	
 	private int pot;							// current chip value in pot
 	private int smallBlind; 					// current small blind
