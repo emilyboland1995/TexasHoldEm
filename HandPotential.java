@@ -24,6 +24,8 @@ public class HandPotential {
 	/**
 	 * @return		The negative potential calculated during
 	 * 				this instance's construction
+	 * 
+	 * Requirement: 2.2.1
 	 */
 	public double getNegativePotential() {
 		return negativePotential;
@@ -33,6 +35,8 @@ public class HandPotential {
 	 * 
 	 * @return		The positive potential calculated during
 	 * 				this instance's construction
+	 * 
+	 * Requirement: 2.2.1
 	 */
 	public double getPositivePotential() {
 		return positivePotential;
@@ -45,6 +49,8 @@ public class HandPotential {
 	 * @param boardCards	A Card[] containing one player's board cards
 	 * @param d				A Deck used to enumerate all possible future
 	 * 						hands for the player and one opponent.
+	 * 
+	 * Requirement: 2.2.1
 	 */
 	private void calculateHandPotential(Card[] holeCards, Card[] boardCards, Deck d) {
 		if (boardCards.length == 5) { // No further potential to grow
@@ -100,17 +106,6 @@ public class HandPotential {
 
 		positivePotential = (double) (HP[BEHIND][AHEAD] + HP[BEHIND][TIED] / 2.0 + HP[TIED][AHEAD] / 2.0) / (HPTotal[BEHIND] * 990 + (HPTotal[TIED] * 990) / 2.0);
 		negativePotential = (double) (HP[AHEAD][BEHIND] + HP[TIED][BEHIND] / 2.0 + HP[AHEAD][TIED] / 2.0) / (HPTotal[AHEAD] * 990 + (HPTotal[TIED] * 990) / 2.0);
-	
-		for (int i = 0; i < 3; i++) {
-			for (int j = 0; j < 3; j++) {
-					System.out.print(HP[i][j] + " ");
-			}
-			System.out.println();
-		}
-		for (int i = 0; i < 3; i++) {
-			System.out.print(HPTotal[i] + " ");
-		}
-		System.out.println();
 	}
 	/**
 	 * 

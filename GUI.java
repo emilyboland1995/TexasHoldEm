@@ -28,38 +28,44 @@ public class GUI {
 	private static String[] startMenuOptions = {"Start Game", "Set Starting Chips", "Adjust Rounds Per Blind Level", "Quit Game"};
 	
 	// Default sizes of the cards
+	// Requirement: 3.3.1
 	private static final int cardHeight = 120;
 	private static final int cardWidth = 98;
 	
 	private JFrame frmTexasHoldem; // Main frame for the whole game
 	
 	// JLabel[]s for holding the images of playing cards
+	// Requirement: 3.3.1
 	private JLabel[] boardCardImages = new JLabel[5];
 	private JLabel[] playerHoleCardImages = new JLabel[2];
 	private JLabel[] botHoleCardImages = new JLabel[2];
 	
 	// JLabel objects to reflect key values
 	// associated with the Game's current state
+	// Requirement: 3.3.4
 	private JLabel playerChips;
 	private JLabel playerChipsInPot;
 	private JLabel botChips;
 	private JLabel botChipsInPot;
-	private JLabel pot;
-	private JLabel chipsToCall;
+	private JLabel pot; // Requirement: 3.3.2
+	private JLabel chipsToCall; // Requirement: 3.3.3
 	private JLabel userPrompt;
 	private JLabel dealerLabel;
 	
 	// Buttons that allow the user to
 	// perform all available betting actions
+	// Requirement: 3.1.2
 	private JButton btnFold;
 	private JButton btnCall;
 	private JButton btnRaise;
 	private JButton btnCheck;
 	private JButton btnAllIn;
 	private JButton btnBet;
+	private JButton btnExit; // Requirement 3.1.1
 	
 	// Text area for game updates and key pieces
 	// of information not otherwise present
+	// Requirement: 3.2.1
 	private JScrollPane scrollPane; 	
 	private JTextArea textArea;
 	
@@ -328,7 +334,7 @@ public class GUI {
 		
 		
 		// Requirement: 3.1.1
-		JButton btnExit = new JButton("Quit");
+		btnExit = new JButton("Quit");
 		btnExit.setBounds(695, 10, 90, 25);
 		frmTexasHoldem.getContentPane().add(btnExit);
 		
@@ -400,36 +406,48 @@ public class GUI {
 	}
 	/**
 	 * Disable only the Fold button
+	 * 
+	 * Requirement 3.1.2
 	 */
 	public void disableFold() {
 		btnFold.setEnabled(false);
 	}
 	/**
 	 * Disable only the Call button
+	 * 
+	 * Requirement 3.1.2
 	 */
 	public void disableCall() {
 		btnCall.setEnabled(false);
 	}
 	/**
 	 * Disable only the Check button
+	 * 
+	 * Requirement 3.1.2
 	 */
 	public void disableCheck() {
 		btnCheck.setEnabled(false);
 	}
 	/**
 	 * Disable only the Bet button
+	 * 
+	 * Requirement 3.1.2
 	 */
 	public void disableBet() {
 		btnBet.setEnabled(false);
 	}
 	/**
 	 * Disable only the Raise button
+	 * 
+	 * Requirement 3.1.2
 	 */
 	public void disableRaise() {
 		btnRaise.setEnabled(false);
 	}
 	/**
 	 * Disable only the All In button
+	 * 
+	 * Requirement 3.1.2
 	 */
 	public void disableAllIn() {
 		btnAllIn.setEnabled(false);
@@ -726,7 +744,7 @@ public class GUI {
 	 * can 
 	 * @return
 	 * 
-	 * Requirement: 2.1.1, 2.1.2, 3.1.1
+	 * Requirement: 3.4.0
 	 */
 	public int displayStartMenu() {
 		int selectedOption = 0;
@@ -734,12 +752,15 @@ public class GUI {
 				"Start Menu", JOptionPane.YES_NO_OPTION, JOptionPane.DEFAULT_OPTION, null, startMenuOptions, null);
 		return selectedOption;
 	}
+	/**
+	 * Indicates which player is currently the dealer on the GUI
+	 * @param thisPlayer		The Player who is currently the dealer
+	 */
 	public void setDealerLabel(Player thisPlayer){
 		if(thisPlayer instanceof Bot){
 			dealerLabel.setBounds(650, 50, 120, 14);
 		} else {
 			dealerLabel.setBounds(150, 50, 120, 14);
 		}
-		
 	}
 }

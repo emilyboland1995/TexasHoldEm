@@ -6,7 +6,7 @@ import java.util.Random;
  * is the addition of the getAction method, which prompts the
  * bot to make a move based on current game conditions.
  * 
- * Requirement Sets: 1.3.0, 2.2.0
+ * Requirement Sets: 1.3.0, 2.3.0
  */
 
 public class Bot extends Player {
@@ -18,7 +18,7 @@ public class Bot extends Player {
 	private static final int LOW = 2;
 	private static final int WEAK = 3;
 	
-	// Pre-flop action thresholds
+	// Pre-flop action thresholds, Requirement 1.3.1
 	private static double[] preFlopThresholds = {0.3, 0.5, 0.8};
 	
 	// Used to randomize the bot's behavior
@@ -41,7 +41,7 @@ public class Bot extends Player {
 	 * @return			A String containing the move selected by
 	 * 					this instance of Bot
 	 * 
-	 * Requirements: 1.3.1, 1.3.2, 1.3.3, 2.2.2
+	 * Requirements: 1.3.1, 1.3.2, 1.3.3, 2.3.1, 2.3.2
 	 */
 	public BotMove getAction(Game state) {
 		double chipVariation = rand.nextDouble() - .5;
@@ -62,12 +62,12 @@ public class Bot extends Player {
 					callEntries *= 1.1;
 				}
 			}
-		} else { // bot needs to check or bet
+		} else { // Bot needs to check or bet
 			chipsToCall = 0;
 		}
 		if (state.hasFlopOccured()) {
 			handStrength = HandStrengthCalculator.getEffectiveHandStrengthOptimistic(state.getBotHoleCards(), state.getVisibleBoardCards());
-		} else { // flop has not occured
+		} else { // flop has not occurred
 			handStrength = PreFlopHandRanker.getHoleCardWinRate(state.getBotHoleCards());
 		}
 		if (Double.isNaN(handStrength)) { // Ensure handStrength is a valid double
@@ -133,7 +133,7 @@ public class Bot extends Player {
 	 * @return			A String containing the move selected by
 	 * 					this instance of Bot
 	 * 
-	 * Requirements: 1.3.1, 1.3.2, 2.2.2
+	 * Requirements: 1.3.1, 1.3.2, 2.3.0
 	 */
 	public BotMove getActionOLD(Game state) {
 		double choice = rand.nextDouble();
@@ -263,7 +263,7 @@ public class Bot extends Player {
 	 * Determines the strategy the bot will pursue based on the strength
 	 * of the bot's hole cards
 	 * 
-	 * Requirement: 1.3.3
+	 * Requirement: 1.3.3, 2.3.2
 	 */
 	private void evaluatePreFlopStrength() {
 		double preFlopStrength = PreFlopHandRanker.getHoleCardWinRate(this.getHoleCards());

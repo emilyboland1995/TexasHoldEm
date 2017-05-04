@@ -36,7 +36,7 @@ public class PostFlopHandRanker {
 	 * @return					A String of the hand represented by the
 	 * 							absoluteRank passed
 	 * 
-	 * Requirement: 1.8.3
+	 * Requirement: 1.8.2
 	 */
 	public static String getHandStringFromRank(long absoluteRank) {
 		int handType = (int) (absoluteRank / majorFactor);

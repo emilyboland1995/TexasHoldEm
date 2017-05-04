@@ -3,7 +3,7 @@
  * formula, along with a simple method for calculating basic hand strength. 
  * Details for each method can be found in the method descriptions.
  * 
- * Requirement Sets: 2.0.0
+ * Requirement Sets: 2.2.0
  */
 
 import java.util.*;
@@ -26,7 +26,7 @@ public class HandStrengthCalculator {
 	 * 						passed.
 	 * @return				A double containing the EHS as shown above.
 	 * 
-	 * Requirement: 2.4.3
+	 * Requirement: 2.2.2
 	 */
 	public static double getEffectiveHandStrength(Card[] holeCards, Card[] boardCards, HandPotential potentials) {
 		double handStrength = getHandStrength(holeCards, boardCards);
@@ -53,7 +53,7 @@ public class HandStrengthCalculator {
 	 * 						passed.
 	 * @return				A double containing the EHS as shown above.
 	 * 
-	 * Requirement: 2.4.3
+	 * Requirement: 2.2.3
 	 */
 	public static double getEffectiveHandStrengthOptimistic(Card[] holeCards, Card[] boardCards, HandPotential potentials) {
 		double handStrength = getHandStrength(holeCards, boardCards);
@@ -74,7 +74,7 @@ public class HandStrengthCalculator {
 	 * @return				The effective hand strength of the player's
 	 * 						best hand
 	 * 
-	 * Requirement: 2.4.3
+	 * Requirement: 2.2.2
 	 */
 	public static double getEffectiveHandStrength(Card[] holeCards, Card[] boardCards) {
 		return getEffectiveHandStrength(holeCards, boardCards, new HandPotential(holeCards, boardCards));
@@ -96,7 +96,7 @@ public class HandStrengthCalculator {
 	 * @return				The effective hand strength of the player's
 	 * 						best hand
 	 * 
-	 * Requirement: 2.4.3
+	 * Requirement: 2.2.3
 	 */
 	public static double getEffectiveHandStrengthOptimistic(Card[] holeCards, Card[] boardCards) {
 		return getEffectiveHandStrengthOptimistic(holeCards, boardCards, new HandPotential(holeCards, boardCards));
@@ -112,7 +112,7 @@ public class HandStrengthCalculator {
 	 * @param boardCards	A Card[] containing all visible board cards	
 	 * @return				The strength of the given hand
 	 * 
-	 * Requirement: 2.4.2
+	 * Requirement: 2.2.4
 	 */
 	public static double getHandStrength(Card[] holeCards, Card[] boardCards) {
 		Deck d = new Deck(); // Test deck

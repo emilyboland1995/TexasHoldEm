@@ -16,11 +16,11 @@ import javax.swing.JOptionPane;
 
 public class Game {
 	
-	// Requirement: 1.4.0
 	public static enum Move {FOLD, CHECK, CALL, BET, RAISE, NOMOVE, ALLIN};
 	private final int defaultStartingChips = 2000;
 	private final int MAX_STARTING_CHIPS = ((Integer.MAX_VALUE) - 1) / 2;
 	
+	// Requirement: 1.5.0
 	private int pot;							// current chip value in pot
 	private int smallBlind; 					// current small blind
 	private int bigBlind; 						// big blind value
@@ -54,6 +54,8 @@ public class Game {
 	 * Resets this instance of Game to default values
 	 * that would be otherwise displayed initially.
 	 * Prompts the user with a start menu
+	 * 
+	 * 1.1.4
 	 */
 	public void resetGame() {
 		this.setInitialGameState();
@@ -74,7 +76,7 @@ public class Game {
 		botRevealed = false;
 		startingChips = defaultStartingChips;
 		
-		displayStartMenu();
+		displayStartMenu(); // Requirement 3.4.0
 		
 		bot = new Bot("Bot", startingChips);
 		player = new Player("User", startingChips);
@@ -96,6 +98,8 @@ public class Game {
 	 * the menu without selecting an option, the start menu will be
 	 * displayed again, forcing the user to either fully exit the game
 	 * or make a valid selection.
+	 * 
+	 * Requirement: 3.4.0
 	 */
 	private void displayStartMenu() {
 		boolean gameStarted = false;
@@ -173,7 +177,7 @@ public class Game {
 	/**
 	 * Adjust blinds based on blind level
 	 * 
-	 * Requirement: 2.3.1
+	 * Requirement: 2.4.1
 	 */
 	private void adjustBlinds() {
 		switch(blindLevel) {
@@ -281,6 +285,8 @@ public class Game {
 	 * This method prompts the user to specify whether or not they want to
 	 * play another hand.
 	 * @return		True if the user wants to continue, false if otherwise
+	 * 
+	 * Requirement 1.1.1
 	 */
 	 private boolean userWantsToContinue() {
 		int wantsToPlay;
@@ -301,6 +307,8 @@ public class Game {
 	 * will not reset the deck. !! This capability is for testing only !!
 	 * @param isStacked		True if the deck is pre-defined (stacked) and
 	 * 						should not be shuffled, false if otherwise.
+	 * 
+	 * Requirement: 1.1.2
 	 */
 	private void createHand(boolean isStacked) {
 		if (!isStacked) {
@@ -361,7 +369,7 @@ public class Game {
 	/**
 	 * Handles the blinds for a game containing two players: the user and one bot.
 	 * 
-	 * 2.3.1
+	 * Requirement: 2.4.1
 	 */
 	private void processBlinds() {
 		// ******************blinds*************************************
@@ -425,7 +433,7 @@ public class Game {
      * 						player has insufficient chips to cover the
      * 						raise amount specified).
      * 
-     * Requirement: 1.2.2, 1.2.5, 1.2.6
+     * Requirement: 1.2.2, 1.2.3, 1.2.6
      */
     public boolean raiseOrBet(int raiseOrBetAmt) { // returns true if successful
     	if (raiseOrBetAmt < 1) {
@@ -659,16 +667,18 @@ public class Game {
      * 
      * Post-flop, river: Displays HS
      * 
-     * Requirements: 2.4.1, 2.4.2, 2.4.3
+     * Requirement Set: 2.5.0
      */
     private void showUserStatistics() {
 		StringBuilder userStats = new StringBuilder();
 		userStats.append("**** Stats for your current hand ****\n");
 		if (this.hasFlopOccured()) {
 			if (this.hasRiverOccured()) { // River has occurred
+			// Requirement: 2.5.2
 				userStats.append(String.format("Hand Strength: %.2f", 
 						100 * HandStrengthCalculator.getHandStrength(player.getHoleCards(), this.getVisibleBoardCards())) + "%\n");
 			} else { // River has not occurred
+				// Requirements: 2.5.2, 2.5.3, 2.5.4
 				userStats.append(String.format("EHS: %.2f", 
 						100 * HandStrengthCalculator.getEffectiveHandStrength(player.getHoleCards(), this.getVisibleBoardCards())) + "%\n");
 				userStats.append(String.format("EHS': %.2f", 
@@ -677,6 +687,7 @@ public class Game {
 						100 * HandStrengthCalculator.getHandStrength(player.getHoleCards(), this.getVisibleBoardCards())) + "%\n");
 			}
 		} else { // Flop has not occurred
+			// Requirement: 2.5.1
 			userStats.append(String.format("Estimated Win Rate For Your Hole Cards: %.2f",
 					100 * PreFlopHandRanker.getHoleCardWinRate(player.getHoleCards())) + "%\n");
 		}
@@ -685,6 +696,8 @@ public class Game {
 	/**
      * This method handles a round of betting, where a move is elicited 
      * from each player in turn.
+     * 
+     * Requirement: 1.1.2
      */
     private void roundOfBetting() {
     	boolean firstRound = true;
@@ -726,10 +739,13 @@ public class Game {
     	}
     }
     /**
-     * 
+     * Verifies whether or not all players in the hand
+     * have the same number of chips in the pot
      * @return		Returns true if all players in the 
      * 				hand have the same number of chips in pot 
      * 				or are all in
+     * 
+     * Requirement: 1.1.2
      */
     private boolean allSquare() { 
     	boolean returnVal = true;
@@ -747,10 +763,12 @@ public class Game {
     }
     
     /**
-     * 
+     * Processes the bot's action.
      * @param move		The BotMove object representing
      * 					the bot's move for this round
      * 					of betting
+     * 
+     * Requirement 1.3.3
      */
     private void processBotAction(BotMove move) {
     	boolean valid = false;
@@ -797,6 +815,8 @@ public class Game {
     
     /**
      * This method prompts the player to select an appropriate action.
+     * 
+     * Requirement: 1.2.0
      */
     private void getPlayerAction() {
     	gui.promptUser();
@@ -870,6 +890,8 @@ public class Game {
      * @param r		The response provided by the user
      * @return		True if a move is made, false if
      * 				otherwise
+     * 
+     * Requirements: 1.2.0, 1.3.3
      */
     private boolean processResponse(Move move) {
     	if (move.equals(Move.BET) || move.equals(Move.RAISE) ) { // get bet/raise amount and process
@@ -885,7 +907,7 @@ public class Game {
     					    					+ (activePlayer.getChips() - (chipsToCall - activePlayer.getChipsInPot()) + ")"), minRaise);
     			if (strAmt == null) {
     				return false; // User cancelled
-    			}else {
+    			} else {
         			amt = Integer.parseInt(strAmt);
         			
         			if (amt >= minRaise && amt <= (activePlayer.getChips() - (chipsToCall - activePlayer.getChipsInPot()))) {
@@ -924,6 +946,8 @@ public class Game {
 	
 	/**
 	 * Perform the flop
+	 * 
+	 * Requirement: 1.1.2
 	 */
 	private void flop() {
 		flopFlag = true;
@@ -931,6 +955,8 @@ public class Game {
 	}
 	/**
 	 * Perform the turn
+	 * 
+	 * Requirement: 1.1.2
 	 */
 	private void turn() {
 		turnFlag = true;
@@ -938,6 +964,8 @@ public class Game {
 	}
 	/**
 	 * Perform the river
+	 * 
+	 * Requirement: 1.1.2
 	 */
 	private void river() {
 		riverFlag = true;
